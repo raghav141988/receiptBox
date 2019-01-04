@@ -1,0 +1,714 @@
+import React, { Component } from 'react'
+import { Animated,Alert, Button,Image, Platform, StyleSheet,DatePickerIOS, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
+import PushNotification from '@aws-amplify/pushnotification';
+import { withAuthenticator } from 'aws-amplify-react-native';
+import { PushNotificationIOS } from 'react-native';
+import Amplify, { API, Auth,Storage } from 'aws-amplify';
+import { connect } from "react-redux";
+import amplify from '../../src/aws-exports';
+import {fetchMyReceipts,deleteReceipts,resetReceiptDetail} from '../store/actions/receipts';
+import Icon from 'react-native-vector-icons/dist/Ionicons';
+import MaterialIcon from 'react-native-vector-icons/dist/MaterialIcons'
+const STATUS_BAR_HEIGHT = Platform.select({ ios: 0, android: 0 });
+import ReceiptItem from '../components/ReceiptItem';
+import ActionButton from 'react-native-action-button';
+import {showAddReceipt,showAddReceiptFromCamera} from '../components/addReceipt';
+import { modalOpen,resetUIState,resetNotificationData } from '../store/actions/ui';
+import {Navigation} from 'react-native-navigation';
+import ImagePicker from 'react-native-image-picker';
+import {colors} from '../Utils/theme';
+
+const AnimatedListView = Animated.createAnimatedComponent(FlatList);
+
+
+  class MyReceipts extends Component {
+    NAVBAR_HEIGHT=100;
+
+    setDate = (newDate)=>{
+      this.setState({
+          ...this.state,
+          chosenDate:newDate
+      });
+     }
+   
+     toggleAdvanceSearch=()=>{
+       Animated.timing(                  // Animate over time
+         this.state.adVanceSearchClickAnim,            // The animated value to drive
+         {
+           toValue: !this.state.isAdvSearchOpened?0:-300,                   // Animate to opacity: 1 (opaque)
+           duration: 300,   
+           useNativeDriver: true,           // Make it take a while
+         }
+       ).start(); 
+   
+       Animated.timing(                  // Animate over time
+         this.state.searchIconRotateAnim,            // The animated value to drive
+         {
+           toValue: this.state.isAdvSearchOpened?0:1,                   // Animate to opacity: 1 (opaque)
+           duration: 150,   
+           useNativeDriver: true,           // Make it take a while
+         }
+       ).start(); 
+     
+       Animated.timing(                  // Animate over time
+         this.state.navBarHeightChangeAnim,            // The animated value to drive
+         {
+           toValue: this.state.isAdvSearchOpened?0:1,                   // Animate to opacity: 1 (opaque)
+           duration: 150,   
+           useNativeDriver: true,           // Make it take a while
+         }
+       ).start(); 
+     
+       if(this.state.isAdvSearchOpened){
+   setTimeout(() => {
+     this.setState(prevState=>{
+      // this.NAVBAR_HEIGHT=prevState.isAdvSearchOpened?100:130
+      
+         return {
+           ...this.state,
+           isAdvSearchOpened:!prevState.isAdvSearchOpened,
+         //  NAVBAR_HEIGHT:prevState.isAdvSearchOpened?100:120
+           
+        }
+       
+        
+     });
+   }, 250);
+       }else {
+         this.setState(prevState=>{
+         //  this.NAVBAR_HEIGHT=prevState.isAdvSearchOpened?100:130
+          
+             return {
+               ...this.state,
+               isAdvSearchOpened:!prevState.isAdvSearchOpened,
+             //  NAVBAR_HEIGHT:prevState.isAdvSearchOpened?100:120
+               
+            }
+           });
+       }
+      
+   
+     }
+
+    _getAdvanceSearchComponent=(advSearchTranslate,advSearchOpacity)=>{
+    
+    
+   
+      return this.state.isAdvSearchOpened? 
+          (
+          
+  <Animated.View style={[styles.AdvancedSearch,
+  {opacity:advSearchOpacity},
+  { transform: [
+  {translateX:this.state.adVanceSearchClickAnim}
+  ] }]
+  }>
+            <View style={styles.dateInput}>
+               
+                   <Icon
+                    name='date-range' 
+                    size={22} 
+                    style={styles.searchIcon} 
+                    color='#bbb'
+                  /> 
+                  <TextInput 
+                    style={styles.inputText}
+                    placeholder={'From date...'}
+                    placeholderTextColor={'#999'}
+                    underlineColorAndroid={'#fff'}
+                    autoCorrect={false}
+                    onFocus={() => {
+                      //animation.expandBar();
+                      this.props.changeInputFocus('search');
+                    }}
+                    ref={(inputSearch) => {
+                      this.inputSearch = inputSearch;
+                    }}
+                  />
+                </View>
+  
+                <View style={styles.dateInput}>
+               
+               <Icon
+             name={Platform.OS === 'android' ? 'md-date-range' : 'ios-date-range'}
+                size={22} 
+                style={styles.searchIcon} 
+                color='#bbb'
+              /> 
+              <TextInput 
+                style={styles.inputText}
+                placeholder={'To Date...'}
+                placeholderTextColor={'#999'}
+                underlineColorAndroid={'#fff'}
+                autoCorrect={false}
+                onFocus={() => {
+                  //animation.expandBar();
+                  this.props.changeInputFocus('search');
+                }}
+                ref={(inputSearch) => {
+                  this.inputSearch = inputSearch;
+                }}
+              />
+            </View>
+  
+  
+          {/* <DatePickerIOS style={styles.datePicker}
+            date={this.state.chosenDate}
+            onDateChange={this.setDate}
+          /> */}
+        </Animated.View>
+  
+      )
+      
+  :null;
+      }
+
+
+    constructor(props) {
+      super(props);
+      Navigation.events().bindComponent(this);
+      //const dataSource = new FlatList.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+  
+      const scrollAnim = new Animated.Value(0);
+      
+     
+      this.state = {
+        //dataSource: dataSource.cloneWithRows(data),
+        scrollAnim,
+       selectedReceipts:[],
+       isChecked:[],
+       canShowCheckbox:false,
+        adVanceSearchClickAnim:new Animated.Value(-300),
+        searchIconRotateAnim:new Animated.Value(0),
+        navBarHeightChangeAnim:new Animated.Value(0),
+        isAdvSearchOpened:false,
+        chosenDate: new Date(),
+        clampedScroll: Animated.diffClamp(
+         
+            scrollAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0, 1],
+              extrapolateLeft: 'clamp',
+            }),
+          
+          0,
+         this.NAVBAR_HEIGHT - STATUS_BAR_HEIGHT,
+        ),
+      };
+    }
+    /* Handle the selection of the receipt */
+    onItemSelected=(receipt)=>{
+      this.props.resetReceiptDetail();
+      this.handleCancelSelection();
+    // WE NEED TO NAVIGATE TO NEW SCREEN TO VIEW THE SELECTED REPORT
+    Promise.all([
+      Icon.getImageSource(Platform.OS === 'android' ? "md-create" : "ios-create", 25,'white'),
+      Icon.getImageSource(Platform.OS === 'android' ? "md-trash" : "ios-trash", 25,'white'),
+      Icon.getImageSource(Platform.OS === 'android' ? "md-share" : "ios-share", 25,'white'),
+     
+    ]).then(sources => {
+      
+    Navigation.push(this.props.componentId, {
+      component: {
+        name: 'receiptManager.receiptDetail-screen',
+        passProps: {
+          receipt: {...receipt,
+            isLatestReceipt:false
+          }
+          
+        },
+        options: {
+          topBar: {
+            backButton: {
+              color: colors.buttonEnabledColor, // For back button text
+            },
+            buttonColor: colors.buttonEnabledColor,
+        background:{
+          color: colors.primary,
+          translucent: true,
+        },
+            title: {
+              text: receipt.title,
+              color: colors.primaryTextColor,
+            },
+            rightButtons:[
+              {
+                id: 'edit',
+               
+                icon: sources[0]
+             },
+             {
+              id: 'share',
+              icon: sources[2]
+           },
+             {
+                id: 'delete',
+                icon: sources[1]
+             }
+            ]
+          }
+        }
+      }
+    });
+  });
+    }
+    
+
+    signOut=async ()=>{
+        Auth.signOut()
+        .then(() => {
+        this.props.onStateChange('signedOut', null);
+        })
+        .catch(err => {
+        console.log('err: ', err)
+        })
+      }
+
+      componentWillReceiveProps(nextProps) {
+        if(this.props.receipts!==undefined && this.props.receipts.length!==nextProps.receipts.length){
+         //Handle cancel of deletes
+         this.handleCancelSelection();
+        }
+        this.updateCheckedState(nextProps.receipts)
+       }
+      updateCheckedState=(receipts)=>{
+        const initialCheck=receipts.map(()=>false);
+        this.setState({isChecked : initialCheck})
+      }
+      
+
+// componentWillReceiveProps(nextProps) {
+//     const initialCheck = this.nextProps.receipts.map(() => false);
+//     this.setState({isChecked : initialCheck})
+
+// }
+errorHandler=(error)=>{
+  console.log('push notification error');
+  alert(error);
+}
+componentDidMount(){
+    //FETCH MY RECEIPTS FROM DATABASE AND GET IT FROM REDUX
+   
+
+   
+    this.props.resetUIState();
+    this.props.onMyReceipts();
+}
+navigationButtonPressed({ buttonId }) {
+      
+  if(buttonId==='delete'){
+    this.deleteSeletedReceipts();
+  }
+  else if(buttonId==='cancel'){
+    this.handleCancelSelection();
+  }
+  
+}
+handleCancelSelection=()=>{
+  this.setState({canShowCheckbox:false});
+  Navigation.mergeOptions(this.props.componentId, {
+    topBar: {
+      rightButtons: [
+        
+      ]
+    }
+  });
+}
+addLongPressButtons=()=>{
+
+  Promise.all([
+    Icon.getImageSource(Platform.OS === 'android' ? "md-trash" : "ios-trash", 25),
+   
+  ]).then(sources => {
+    Navigation.mergeOptions(this.props.componentId, {
+      topBar: {
+        backButton: {
+          color: colors.buttonEnabledColor, // For back button text
+        },
+        buttonColor: colors.buttonEnabledColor,
+        rightButtons: [
+          {
+            id: 'delete',
+            icon: sources[0]
+          },
+          {
+            id: 'cancel',
+            text: 'Cancel'
+          }
+        ]
+      }
+    });
+  
+});
+
+ 
+
+}
+handleLongPress=(index)=>{
+  //Select current item
+ 
+  const newArray=[...this.state.isChecked.slice(0, index),!this.state.isChecked[index],...this.state.isChecked.slice( index+1)];
+  
+  this.setState({canShowCheckbox:true,
+    isChecked:newArray});
+   this.addLongPressButtons();
+}
+addReceiptFromCamera=()=>{
+  const options = {
+    title: 'Take Receipt picture',
+    customButtons: [{ name: 'fb', title: 'Take picture of Receipt from Camera' }],
+    storageOptions: {
+      skipBackup: true,
+      path: 'images',
+    },
+  };
+  //Image gallery to open a camera
+  ImagePicker.launchCamera(options, (response) => {
+    if (response.didCancel) {
+      console.log('User cancelled image picker');
+    } else if (response.error) {
+      console.log('ImagePicker Error: ', response.error);
+    } else if (response.customButton) {
+      console.log('User tapped custom button: ', response.customButton);
+    } else {
+      const source = { uri: response.uri };
+      this.props.openModal();
+      showAddReceiptFromCamera(response );
+      // You can also display the image using data:
+      // const source = { uri: 'data:image/jpeg;base64,' + response.data };
+  
+     
+    }
+  });
+  
+}
+/* Deletes the selected receipts */
+deleteSeletedReceipts =()=>{
+  let deletableReceipts=[];
+this.props.receipts.map((receipt,index)=>{
+  if(this.state.isChecked[index]){
+    deletableReceipts.push(receipt);
+  }
+
+});
+console.log(deletableReceipts);
+if(deletableReceipts.length>0){
+  this.props.deleteReceipts(deletableReceipts);
+}
+}
+onToggleCheckBox=(index)=>{
+  
+  const newArray=[...this.state.isChecked.slice(0, index),!this.state.isChecked[index],...this.state.isChecked.slice( index+1)];
+   
+  if(!newArray.includes(true)){
+    this.handleCancelSelection();
+  }
+ this.setState({isChecked:newArray});
+ //this.setState({isChecked:null});
+ }
+
+ loadNotificationScreen=()=>{
+  Navigation.mergeOptions('tabs', {
+    bottomTabs: {
+      currentTabIndex: 1
+    }
+  });
+
+  this.props.resetNotificationData();
+ }
+_getHeaderComponent=()=>
+{
+  const { clampedScroll } = this.state;
+    const navbarTranslate = clampedScroll.interpolate({
+      inputRange: [0, this.NAVBAR_HEIGHT - STATUS_BAR_HEIGHT],
+      outputRange: [0, -(this.NAVBAR_HEIGHT - STATUS_BAR_HEIGHT)],
+      extrapolate: 'clamp',
+    });
+
+    const navbarOpacityTranslate = this.state.navBarHeightChangeAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [1,1],
+    
+    });
+
+    const advSearchTranslate = clampedScroll.interpolate({
+        inputRange: [0, this.NAVBAR_HEIGHT - STATUS_BAR_HEIGHT],
+        outputRange: [0, -(this.NAVBAR_HEIGHT - STATUS_BAR_HEIGHT)],
+        extrapolate: 'clamp',
+      });
+      const advSearchOpacity = clampedScroll.interpolate({
+        inputRange: [0, this.NAVBAR_HEIGHT - STATUS_BAR_HEIGHT],
+        outputRange: [1, 0],
+        extrapolate: 'clamp',
+      });
+
+    const navbarOpacity = clampedScroll.interpolate({
+      inputRange: [0, this.NAVBAR_HEIGHT - STATUS_BAR_HEIGHT],
+      outputRange: [1, 0],
+      extrapolate: 'clamp',
+    });
+
+    const spinAnimation= this.state.searchIconRotateAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0deg', '360deg']
+    });
+
+  return (<Animated.View style={[styles.navbar,{ transform: [{ translateY: navbarTranslate }] }]}>
+        
+  <Animated.View style={[styles.searchContainer, { opacity: navbarOpacity }]}>
+  <Animated.View style={[
+      styles.arrowMinimizeContainer, 
+      {transform: [{rotate: spinAnimation},{perspective:1000}]}
+    ]}>
+      <TouchableOpacity onPress={() => {
+      //  animation.minimizeBar();
+       this.toggleAdvanceSearch()
+      //  this.blurInputs();
+      }}>
+        { <Icon
+        
+          name= {this.state.isAdvSearchOpened? (Platform.OS === 'android' ? 'md-arrow-up' : 'ios-arrow-up'):Platform.OS === 'android' ? 'md-arrow-down' : 'ios-arrow-down' }
+          size={25} 
+          style={styles.arrowMinimizeIcon} 
+          color='#A9A9A9'
+        /> }
+      </TouchableOpacity>
+    </Animated.View>
+
+  <View style={styles.searchInput}>
+     
+         <Icon
+          name={Platform.OS === 'android' ? 'md-search' : 'ios-search'}
+          size={25} 
+          style={styles.searchIcon} 
+          color='#bbb'
+        /> 
+        <TextInput 
+          style={styles.inputText}
+          placeholder={'Search by tags...'}
+          placeholderTextColor={'#999'}
+          underlineColorAndroid={'#fff'}
+          autoCorrect={false}
+          onFocus={() => {
+            //animation.expandBar();
+            this.props.changeInputFocus('search');
+          }}
+          ref={(inputSearch) => {
+            this.inputSearch = inputSearch;
+          }}
+        />
+      </View>
+  </Animated.View>
+ {this._getAdvanceSearchComponent(advSearchTranslate,advSearchOpacity)}
+
+</Animated.View>)};
+
+_keyExtractor = (item, index) => index.toString();//item.receiptId;
+
+  render() {
+    
+    if(this.props.isReceiptDeleted){
+      this.props.resetUIState();
+      this.updateCheckedState(this.props.receipts);
+
+  }
+
+  
+
+  if(this.props.notification!==null &&  this.props.notification!==undefined){
+    
+    this.loadNotificationScreen();
+  }
+    
+    
+    return (
+      
+      <View style={styles.fill}>
+       {/* <Button title="sign out" onPress={this.signOut}/> */}
+      <Animated.View style={styles.receiptList} >
+        <AnimatedListView
+         data={this.props.receipts}
+         keyExtractor={this._keyExtractor}
+         extraData={this.state}
+        // ListHeaderComponent={this._getHeaderComponent}
+         renderItem={(info) => (
+          <ReceiptItem
+          receiptItem={info.item}
+          canShowCheckbox={this.state.canShowCheckbox}
+          isChecked={this.state.isChecked[info.index]}
+          canMultiSelect={this.state.canMultiSelect}
+          onToggleCheckBox={()=>this.onToggleCheckBox(info.index)}
+          receiptImage={info.item.image}
+         
+          onLongPress={()=>this.handleLongPress(info.index)}
+          onItemPressed={() => this.onItemSelected(info.item)}
+        />
+         )}
+
+         
+          scrollEventThrottle={1}
+         
+          
+          onScrollEndDrag={this._onScrollEndDrag}
+          onScroll={
+             
+              Animated.event(
+                [{ nativeEvent: { contentOffset: { y: this.state.scrollAnim } } }],
+                { useNativeDriver: true },
+              //  { listener: this._handleListViewScroll },
+              )
+          
+        }
+        />
+        </Animated.View>
+        <ActionButton style={styles.actionButton} buttonColor={colors.primary}>
+          <ActionButton.Item buttonColor='#9b59b6' title="Take Receipt Picture" onPress={() => {
+           // this.props.openModal();
+            this.addReceiptFromCamera(null,false);
+          
+          }}>
+            <Icon    name={Platform.OS === 'android' ? 'md-camera' : 'ios-camera'} style={styles.actionButtonIcon} />
+          </ActionButton.Item>
+          <ActionButton.Item buttonColor='#3498db' title="Upload Receipt from Gallery" onPress={() => {
+            this.props.openModal();
+            showAddReceipt();
+          
+          }}>
+            <MaterialIcon name="file-upload" style={styles.actionButtonIcon} />
+          </ActionButton.Item>
+          {/* <ActionButton.Item buttonColor='#1abc9c' title="Delete Receipts" onPress={this.deleteSeletedReceipts}>
+            <Icon name="md-trash" style={styles.actionButtonIcon} />
+          </ActionButton.Item> */}
+        </ActionButton>
+      </View>
+    );
+  }
+}
+const mapStateToProps = state => {
+    return {
+      receipts: state.receipts.myReceipts,
+      isReceiptDeleted:state.ui.isReceiptDeleted,
+      notification:state.ui.notification
+    };
+  };
+  
+  const mapDispatchToProps = dispatch => {
+    return {
+      resetUIState:()=>dispatch(resetUIState()),
+
+      resetReceiptDetail:()=>dispatch(resetReceiptDetail()),
+      onMyReceipts: () => dispatch(fetchMyReceipts()),
+      deleteReceipts:(receipts)=>dispatch(deleteReceipts(receipts)),
+      openModal:()=>  dispatch(modalOpen()),
+      resetNotificationData:()=>dispatch(resetNotificationData())
+    };
+  };
+
+
+  const styles = StyleSheet.create({
+    fill: {
+      flex: 1,
+    },
+    actionButton:{
+    //  bottom:0,
+    //  paddingBottom:5
+    },
+    actionButtonIcon: {
+      fontSize: 20,
+      height: 22,
+      color: 'white',
+    },
+    receiptList:{
+    //paddingTop:65
+    },
+    navbar: {
+     
+    },
+  
+    title: {
+      color: '#333333',
+    },
+    row: {
+      height: 300,
+      width: null,
+      marginBottom: 1,
+      padding: 16,
+      backgroundColor: 'transparent',
+    },
+    rowText: {
+      color: 'white',
+      fontSize: 18,
+    },
+    searchContainer: {
+      zIndex: 99,
+      paddingTop: 10,
+      width: '100%',
+      overflow: 'hidden',
+      paddingBottom: 10,
+     display:'flex',
+    
+     flexDirection:'row'
+     
+    },
+    arrowMinimizeContainer: {
+      position: 'relative',
+  
+      
+    },
+    arrowMinimizeIcon: {
+      marginLeft: 5,
+    },
+    searchInput: {
+     // display: 'flex',
+      backgroundColor: '#fff',
+      borderRadius: 20,
+      height: 45,
+      width:'80%',
+      marginLeft: 5,
+      marginRight: 5,
+      
+     
+    },
+    dateInput:{
+      backgroundColor: '#fff',
+      borderRadius: 20,
+      height: 45,
+      width:'50%',
+      marginLeft: 5,
+      marginRight: 5,
+    },
+    AdvancedSearch: {
+       display: 'flex',
+       flexDirection:'row',
+       backgroundColor: '#fff',
+       
+       height: 45,
+       //width:'100%',
+       marginLeft: 5,
+       marginRight: 5,
+       
+      
+     },
+    locationInput: {
+      marginTop: 10,
+    },
+    searchIcon: {
+      position: 'absolute',
+      left: 13,
+      top: 12,
+    },
+    datePicker :{
+        zIndex:999,
+        backgroundColor:'#eee'
+    },
+    inputText: {
+      
+      marginTop: 13,
+      marginLeft: 43,
+      fontSize: 15,
+      color: '#999',
+      width:'100%'
+    }
+  });
+
+export default connect(mapStateToProps, mapDispatchToProps)(withAuthenticator(MyReceipts))

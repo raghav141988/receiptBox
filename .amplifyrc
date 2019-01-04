@@ -1,0 +1,14 @@
+{
+    "providers": {
+        "awscloudformation": {
+            "AuthRoleName": "eceiptanager-20181201161718-authRole",
+            "UnauthRoleArn": "arn:aws:iam::175709978647:role/eceiptanager-20181201161718-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::175709978647:role/eceiptanager-20181201161718-authRole",
+            "Region": "us-east-1",
+            "DeploymentBucketName": "eceiptanager-20181201161718-deployment",
+            "UnauthRoleName": "eceiptanager-20181201161718-unauthRole",
+            "StackName": "eceiptanager-20181201161718",
+            "StackId": "arn:aws:cloudformation:us-east-1:175709978647:stack/eceiptanager-20181201161718/de0ce480-f5b6-11e8-a372-503f23fb5536"
+        }
+    }
+}

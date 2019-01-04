@@ -1,0 +1,11 @@
+{
+    "appName": "receiptmanager",
+    "roleName": "pinpointLambdaRole713b2f99",
+    "cloudWatchPolicyName": "cloudWatchPolicy713b2f99",
+    "pinpointPolicyName": "pinpointPolicy713b2f99",
+    "authPolicyName": "pinpoint_amplify_713b2f99",
+    "unauthPolicyName": "pinpoint_amplify_713b2f99",
+    "authRoleName": "eceiptanager-20181201161718-authRole",
+    "unauthRoleName": "eceiptanager-20181201161718-unauthRole",
+    "IAMPrefix": "175709978647"
+}

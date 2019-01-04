@@ -1,0 +1,35 @@
+{
+    "paths": [
+        {
+            "name": "/receipts",
+            "lambdaFunction": "receiptmanager510c63ca",
+            "privacy": {
+                "private": true,
+                "auth": "rw"
+            }
+        }
+    ],
+    "resourceName": "api316d17f6",
+    "apiName": "receiptmanager316d17f6",
+    "functionArns": [
+        {
+            "lambdaFunction": "receiptmanager510c63ca"
+        }
+    ],
+    "privacy": {
+        "auth": 1,
+        "unauth": 0,
+        "authRoleName": "eceiptanager-20181201161718-authRole",
+        "unAuthRoleName": "eceiptanager-20181201161718-unauthRole"
+    },
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "receiptmanager510c63ca",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        }
+    ]
+}

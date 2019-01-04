@@ -1,0 +1,35 @@
+{
+    "paths": [
+        {
+            "name": "/moveReceipts",
+            "lambdaFunction": "moveReceipts",
+            "privacy": {
+                "private": true,
+                "auth": "rw"
+            }
+        }
+    ],
+    "resourceName": "moveReceiptsAPI",
+    "apiName": "receiptmanager5fec93bc",
+    "functionArns": [
+        {
+            "lambdaFunction": "moveReceipts"
+        }
+    ],
+    "privacy": {
+        "auth": 1,
+        "unauth": 0,
+        "authRoleName": "eceiptanager-20181201161718-authRole",
+        "unAuthRoleName": "eceiptanager-20181201161718-unauthRole"
+    },
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "moveReceipts",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,5 @@
+{
+    "tableName": "receipt",
+    "partitionKeyName": "userSub",
+    "partitionKeyType": "S"
+}

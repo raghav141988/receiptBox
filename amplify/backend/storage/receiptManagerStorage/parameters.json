@@ -1,0 +1,9 @@
+{
+    "bucketName": "receiptmanagerstorage",
+    "authPolicyName": "s3_amplify_49d98caf",
+    "unauthPolicyName": "s3_amplify_49d98caf",
+    "authRoleName": "eceiptanager-20181201161718-authRole",
+    "unauthRoleName": "eceiptanager-20181201161718-unauthRole",
+    "authPermissions": "rw",
+    "unauthPermissions": ""
+}
