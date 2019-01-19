@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Animated,Alert, Button,Image, Platform, StyleSheet,DatePickerIOS, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
+import { Animated,Alert,StatusBar, Button,Image, Platform, StyleSheet,DatePickerIOS, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
 import PushNotification from '@aws-amplify/pushnotification';
 import { withAuthenticator } from 'aws-amplify-react-native';
 import { PushNotificationIOS } from 'react-native';
@@ -182,6 +182,8 @@ const AnimatedListView = Animated.createAnimatedComponent(FlatList);
         searchIconRotateAnim:new Animated.Value(0),
         navBarHeightChangeAnim:new Animated.Value(0),
         isAdvSearchOpened:false,
+        isFetching:false,
+        didScreenAppear:false,
         chosenDate: new Date(),
         clampedScroll: Animated.diffClamp(
          
@@ -199,6 +201,8 @@ const AnimatedListView = Animated.createAnimatedComponent(FlatList);
     /* Handle the selection of the receipt */
     onItemSelected=(receipt)=>{
       this.props.resetReceiptDetail();
+      this.updateCheckedState(this.props.receipts);
+
       this.handleCancelSelection();
     // WE NEED TO NAVIGATE TO NEW SCREEN TO VIEW THE SELECTED REPORT
     Promise.all([
@@ -213,19 +217,21 @@ const AnimatedListView = Animated.createAnimatedComponent(FlatList);
         name: 'receiptManager.receiptDetail-screen',
         passProps: {
           receipt: {...receipt,
-            isLatestReceipt:false
+            isLatestReceipt:false,
+            isReceiptFolder:false
           }
           
         },
         options: {
           topBar: {
+           // hideOnScroll: true,
             backButton: {
               color: colors.buttonEnabledColor, // For back button text
             },
             buttonColor: colors.buttonEnabledColor,
         background:{
           color: colors.primary,
-          translucent: true,
+         // translucent: true,
         },
             title: {
               text: receipt.title,
@@ -286,6 +292,16 @@ errorHandler=(error)=>{
   console.log('push notification error');
   alert(error);
 }
+
+componentDidDisappear(){
+  this.setState({didScreenAppear:false});
+}
+componentDidAppear(){
+  this.setState({didScreenAppear:true});
+if(this.props.receipts===undefined ||this.props.receipts===null ||this.props.receipts.length===0){
+  this.props.onMyReceipts();
+}
+}
 componentDidMount(){
     //FETCH MY RECEIPTS FROM DATABASE AND GET IT FROM REDUX
    
@@ -343,6 +359,10 @@ addLongPressButtons=()=>{
 
  
 
+}
+onRefresh=()=>{
+  this.setState({refreshing:true});
+  this.props.onMyReceipts();
 }
 handleLongPress=(index)=>{
   //Select current item
@@ -508,8 +528,10 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
   render() {
     
     if(this.props.isReceiptDeleted){
-      this.props.resetUIState();
-      this.updateCheckedState(this.props.receipts);
+     // this.updateCheckedState(this.props.receipts);
+      if(this.state.didScreenAppear){this.props.resetUIState();
+      }
+      
 
   }
 
@@ -524,11 +546,18 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
     return (
       
       <View style={styles.fill}>
+      <StatusBar
+    
+     barStyle="light-content"
+   />
        {/* <Button title="sign out" onPress={this.signOut}/> */}
       <Animated.View style={styles.receiptList} >
         <AnimatedListView
          data={this.props.receipts}
+         extraData={this.state}
          keyExtractor={this._keyExtractor}
+         onRefresh={() => this.onRefresh()}
+         refreshing={this.state.isFetching}
          extraData={this.state}
         // ListHeaderComponent={this._getHeaderComponent}
          renderItem={(info) => (
@@ -561,15 +590,18 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
         }
         />
         </Animated.View>
-        <ActionButton style={styles.actionButton} buttonColor={colors.primary}>
-          <ActionButton.Item buttonColor='#9b59b6' title="Take Receipt Picture" onPress={() => {
+        <ActionButton 
+        offsetY={20}
+        offsetX={20}
+        style={styles.actionButton} buttonColor={colors.primary}>
+          <ActionButton.Item buttonColor={colors.primary} title="Take Receipt Picture" onPress={() => {
            // this.props.openModal();
             this.addReceiptFromCamera(null,false);
           
           }}>
             <Icon    name={Platform.OS === 'android' ? 'md-camera' : 'ios-camera'} style={styles.actionButtonIcon} />
           </ActionButton.Item>
-          <ActionButton.Item buttonColor='#3498db' title="Upload Receipt from Gallery" onPress={() => {
+          <ActionButton.Item buttonColor={colors.primary} title="Upload Receipt from Gallery" onPress={() => {
             this.props.openModal();
             showAddReceipt();
           
@@ -582,7 +614,7 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
         </ActionButton>
       </View>
     );
-  }
+  }    
 }
 const mapStateToProps = state => {
     return {
@@ -598,7 +630,7 @@ const mapStateToProps = state => {
 
       resetReceiptDetail:()=>dispatch(resetReceiptDetail()),
       onMyReceipts: () => dispatch(fetchMyReceipts()),
-      deleteReceipts:(receipts)=>dispatch(deleteReceipts(receipts)),
+      deleteReceipts:(receipts)=>dispatch(deleteReceipts(receipts,false)),
       openModal:()=>  dispatch(modalOpen()),
       resetNotificationData:()=>dispatch(resetNotificationData())
     };
@@ -610,8 +642,13 @@ const mapStateToProps = state => {
       flex: 1,
     },
     actionButton:{
-    //  bottom:0,
-    //  paddingBottom:5
+      shadowOffset: {
+        width: 5,
+        height: 5
+    },
+    shadowColor: "#d3d3d3",
+    shadowOpacity: .1,
+    shadowRadius: 50,
     },
     actionButtonIcon: {
       fontSize: 20,

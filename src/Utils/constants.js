@@ -12,4 +12,5 @@
  */
 export default {
   APP_NAME: 'Pet Tracker',
+  DEFAULT_RECEIPT_CATEGORY:'Expense'
 };

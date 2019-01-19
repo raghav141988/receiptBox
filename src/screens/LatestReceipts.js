@@ -5,7 +5,7 @@ import { withAuthenticator } from 'aws-amplify-react-native';
 
 import Amplify, { API, Auth,Storage } from 'aws-amplify';
 import { connect } from "react-redux";
-import {fetchLatestReceipts,resetReceiptDetail,moveToMyReceipts,deleteReceipts} from '../store/actions/receipts';
+import {fetchLatestReceipts,markInboxSelection,fetchUnknownReceipts,resetReceiptDetail,moveToMyReceipts,deleteReceipts} from '../store/actions/receipts';
 import Icon from 'react-native-vector-icons/dist/Ionicons';
 const STATUS_BAR_HEIGHT = Platform.select({ ios: 0, android: 0 });
 import ReceiptItem from '../components/ReceiptItem';
@@ -17,9 +17,11 @@ import {colors} from '../Utils/theme';
 import CheckBox from '../components/CheckBox';
 import MainText from '../components/MainText';
 import HeadingText from '../components/HeadingText';
+import {ButtonGroup} from 'react-native-elements';
+
 const AnimatedListView = Animated.createAnimatedComponent(FlatList);
 const MOVE_RECEIPTS_TEXT='Move all emails to my receipts';
-
+const buttons = ['Receipts', 'Others']
   class LatestReceipts extends Component {
     NAVBAR_HEIGHT=100;
 
@@ -105,14 +107,18 @@ const MOVE_RECEIPTS_TEXT='Move all emails to my receipts';
         scrollAnim,
        selectedReceipts:[],
        isChecked:[],
+       selectedIndex: 0,
        canMultiSelect:false,
        allChecked:false,
        isFetching:false,
-      };
+       didScreenAppear:false,
+       isReceiptFolder:true,
+    };
     }
     /* Handle the selection of the receipt */
     onItemSelected=(receipt)=>{
       this.handleCancelSelection();
+      this.updateCheckedState(this.props.receipts);
       this.props.resetReceiptDetail();
     // WE NEED TO NAVIGATE TO NEW SCREEN TO VIEW THE SELECTED REPORT
     Promise.all([
@@ -125,17 +131,19 @@ const MOVE_RECEIPTS_TEXT='Move all emails to my receipts';
       component: {
         name: 'receiptManager.receiptDetail-screen',
         passProps: {
-          receipt: receipt
+          receipt: receipt,
+          isReceiptFolder:this.state.isReceiptFolder
         },
         options: {
           topBar: {
+            //hideOnScroll: true,
             backButton: {
               color: colors.buttonEnabledColor, // For back button text
             },
             buttonColor: colors.buttonEnabledColor,
         background:{
           color: colors.primary,
-          translucent: true,
+          //translucent: true,
         },
             title: {
               text: receipt.title
@@ -193,13 +201,18 @@ const MOVE_RECEIPTS_TEXT='Move all emails to my receipts';
           }
         });
       } 
+
+      componentDidDisappear(){
+        this.setState({didScreenAppear:false});
+     }
 componentDidAppear(){
-  
+  this.setState({didScreenAppear:true});
   if(this.props.receipts===undefined ||this.props.receipts===null ||this.props.receipts.length===0){
-    this.props.onMyReceipts();
+    this.fetchReceipts(this.state.isReceiptFolder);
   }
 }
 componentWillReceiveProps(nextProps) {
+
   if(this.props.receipts!==undefined && this.props.receipts.length!==nextProps.receipts.length){
     //Handle cancel of deletes
     this.handleCancelSelection();
@@ -215,7 +228,7 @@ componentWillReceiveProps(nextProps) {
 componentDidMount(){
     //FETCH MY RECEIPTS FROM DATABASE AND GET IT FROM REDUX
     this.props.resetUIState();
-    this.props.onMyReceipts();
+    this.fetchReceipts(this.state.isReceiptFolder);
 }
 
 toggleMultiSelect=()=>{
@@ -236,8 +249,14 @@ this.props.receipts.map((receipt,index)=>{
 
 });
 if(deletableReceipts.length>0){
-  this.props.deleteReceipts(deletableReceipts);
+  this.deleteReceipts(deletableReceipts);
 }
+}
+deleteReceipts=(deletableReceipts)=>{
+  const isReceiptFolder=  this.state.isReceiptFolder;
+  this.props.deleteReceipts(deletableReceipts,isReceiptFolder);
+ 
+  
 }
 /* Moves the selected latest receipts to my receipts folder */
 moveSelectedReceipts=()=>{
@@ -248,11 +267,18 @@ this.props.receipts.map((receipt,index)=>{
   }
 
 })
+console.log(movableReceipts)
 if(movableReceipts.length>0){
   //CALL API TO MOVE RECEIPTS TO MY RECEIPT FOLDER
 
-  this.props.onMoveLatestReceipts(movableReceipts);
+  this.moveReceipts(movableReceipts);
 }
+}
+moveReceipts=(receipts)=>{
+  const isReceiptFolder=  this.state.isReceiptFolder;
+  this.props.onMoveLatestReceipts(receipts,isReceiptFolder);
+ 
+  
 }
 selectAllToggle=()=>{
   let allSelected=[];
@@ -321,20 +347,41 @@ updateNavBarForSelection=(newArray)=>{
 
   }
 }
+fetchReceipts=(isReceiptFolder)=>{
+//const isReceiptFolder=  this.state.isReceiptFolder;
+if(isReceiptFolder){
+this.props.onMyLatestReceipts();
+}else{
+  this.props.onMyOtherReceipts();
+}
+}
 onRefresh=()=>{
   this.setState({refreshing:true});
-  this.props.onMyReceipts();
+  this.fetchReceipts(this.state.isReceiptFolder);
 }
 isanyItemSelected=()=>{
   return this.state.isChecked.find(el=>el===true);
 }
 _keyExtractor = (item, index) => index.toString();//item.receiptId;
 
+updateIndex= (selectedIndex) =>{
+  //console.log(item);
+ const isReceiptFolder=selectedIndex==0?true:false
+  this.setState({
+    selectedIndex: selectedIndex,
+    isReceiptFolder:isReceiptFolder
+  })
+  this.props.markInboxSelection(isReceiptFolder);
+  this.fetchReceipts(isReceiptFolder);
+}
+
   render() {
     
     if(this.props.isReceiptDeleted){
-      this.props.resetUIState();
-      this.updateCheckedState(this.props.receipts);
+     // this.updateCheckedState(this.props.receipts);
+      if(this.state.didScreenAppear){this.props.resetUIState();
+      }
+    
 
   }
     
@@ -342,11 +389,21 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
     
       
       <View style={styles.fill}>
+       <ButtonGroup containerStyle={{height:30}}
+         onPress={(selectedIndex)=>this.updateIndex(selectedIndex)}
+         selectedIndex={this.state.selectedIndex}
+         selectedButtonStyle={styles.notificationPrimaryButton}
+         buttons={buttons}
+         selectedTextStyle={styles.selectedTextStyle}
+        textStyle={{fontSize:14}}
+       />
       {
+        
        this.props.receipts?(
      
        <View style={styles.instrContainer}>
-        <CheckBox checked={this.state.allChecked} toggle={this.selectAllToggle}/>
+       
+        <CheckBox size={25} wrapperStyle={{padding:15}} checked={this.state.allChecked} toggle={this.selectAllToggle}/>
         <MainText>
           <HeadingText style={{fontSize:14}}>{MOVE_RECEIPTS_TEXT}</HeadingText>
         </MainText>
@@ -402,13 +459,16 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
         </Animated.View>
         {
           this.isanyItemSelected()?
-        (<ActionButton buttonColor={colors.primary}>
+        (<ActionButton 
+          offsetY={20}
+          offsetX={20}
+        buttonColor={colors.primary}>
          <Icon name="md-create" style={styles.actionButtonIcon} />
           
-          <ActionButton.Item buttonColor='#3498db' title="Move to My Receipts" onPress={() => this.moveSelectedReceipts()}>
+          <ActionButton.Item buttonColor={colors.primary} title="Move to My Receipts" onPress={() => this.moveSelectedReceipts()}>
             <Icon name="md-move" style={styles.actionButtonIcon} />
           </ActionButton.Item>
-          <ActionButton.Item buttonColor='#1abc9c' title="Delete Receipts" onPress={this.deleteSeletedReceipts}>
+          <ActionButton.Item buttonColor={colors.primary} title="Delete Receipts" onPress={this.deleteSeletedReceipts}>
             <Icon name="md-trash" style={styles.actionButtonIcon} />
           </ActionButton.Item>
         </ActionButton>):null
@@ -418,8 +478,9 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
   }
 }
 const mapStateToProps = state => {
+ 
     return {
-      receipts: state.receipts.latestReceipts,
+      receipts: state.receipts.isReceiptFolder?state.receipts.latestReceipts:state.receipts.unknownReceipts,
       isReceiptDeleted:state.ui.isReceiptDeleted
     };
   };
@@ -428,9 +489,11 @@ const mapStateToProps = state => {
     return {
       resetReceiptDetail:()=>dispatch(resetReceiptDetail()),
       resetUIState:()=>dispatch(resetUIState()),
-      deleteReceipts:(receipts)=>dispatch(deleteReceipts(receipts)),
-      onMoveLatestReceipts:(receipts)=>dispatch(moveToMyReceipts(receipts)),
-      onMyReceipts: () => dispatch(fetchLatestReceipts()),
+      deleteReceipts:(receipts,isReceiptFolder)=>dispatch(deleteReceipts(receipts,isReceiptFolder)),
+      onMoveLatestReceipts:(receipts,isReceiptFolder)=>dispatch(moveToMyReceipts(receipts,isReceiptFolder)),
+      onMyLatestReceipts: () => dispatch(fetchLatestReceipts()),
+      markInboxSelection:(isReceiptFolder)=>dispatch(markInboxSelection(isReceiptFolder)),
+      onMyOtherReceipts: () => dispatch(fetchUnknownReceipts()),
       openModal:()=>  dispatch(modalOpen())
     };
   };
@@ -441,6 +504,13 @@ const mapStateToProps = state => {
   const styles = StyleSheet.create({
     fill: {
       flex: 1,
+    },
+    notificationPrimaryButton:{
+      backgroundColor: colors.primary,
+    
+    },
+    selectedTextStyle:{
+      color:'white'
     },
     actionButtonIcon: {
       fontSize: 20,

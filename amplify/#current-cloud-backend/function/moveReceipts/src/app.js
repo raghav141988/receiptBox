@@ -54,8 +54,9 @@ app.use(function (req, res, next) {
  ****************************/
 app.post('/moveReceipts', async function (req, res) {
 
-    const oldPrefix = req.apiGateway.event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1] + '/';
-    const newPrefix = req.apiGateway.event.requestContext.identity.cognitoIdentityId + '/'
+    const oldPrefix = req.apiGateway.event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1] ;
+    const newPrefix = req.apiGateway.event.requestContext.identity.cognitoIdentityId ;
+  
     let succeededReceipts = [];
     let failedReceipts = [];
     let errorObj = {};
@@ -67,21 +68,23 @@ app.post('/moveReceipts', async function (req, res) {
     };
 
 
+    const isReceiptFolder=req.body['isReceiptFolder'];
+    const receiptPrefix=isReceiptFolder?'protected':'public';
+    const receiptSourceBasePath=isReceiptFolder?receiptPrefix+"/"+newPrefix:receiptPrefix;
 
     for (var i = 0; i < req.body.receipts.length; i++) {
         const receipt = req.body.receipts[i];
-
-        console.log(receipt);
+       
+      
         const extension = mime.extension(receipt.contentType);
         const fileName = uuid.v1() + "." + extension;
-        const destinationFileName = ('public/' + receipt.receiptKey + fileName).replace(oldPrefix, newPrefix).replace('public', 'private');
-        const dbReceiptId = destinationFileName.replace(newPrefix, "");
-        console.log('Destination FIle key ' + destinationFileName);
-        console.log('DB receipt ID ' + dbReceiptId);
+        const destinationFileName = (receiptPrefix+'/' + receipt.receiptKey + fileName).replace(oldPrefix, newPrefix).replace(receiptPrefix, 'private');
+        const dbReceiptId = destinationFileName.replace(+"/", "");
+       
 
         let params = {
             Bucket: bucketName,
-            CopySource: bucketName + '/public/' + receipt.receiptKey,
+            CopySource: bucketName + '/'+receiptSourceBasePath+'/' + receipt.receiptKey,
             Key: destinationFileName
         };
         console.log('file to be copied to');
@@ -97,9 +100,9 @@ app.post('/moveReceipts', async function (req, res) {
             const dbRowData = {
                 ...receipt,
                  isLatestReceipt:false,
-                receiptKey: dbReceiptId.replace('private/', ''),
+                receiptKey: dbReceiptId.replace('private/', '').replace(newPrefix+"/",''),
                 [titleCatKey]: titleCat,
-                userSub: oldPrefix.replace('/', ''),
+                userSub:req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH,
 
             }
             let putItemParams = {
@@ -109,17 +112,16 @@ app.post('/moveReceipts', async function (req, res) {
             //SAVE THE NEW FILES TO DYNAMO DB
             try {
                 const dbResponse = await dynamodb.put(putItemParams).promise();
-                console.log('DB put succeeded for');
-                console.log(dbResponse);
+                
                 paramsS3Delete.Delete.Objects.push({
-                    Key: 'public/' + receipt.receiptKey
+                    Key: receiptSourceBasePath+'/' + receipt.receiptKey
                 });
 
                 succeededReceipts.push(
                      {
                         ...receipt,
 
-                        latestReceiptKey: dbReceiptId.replace('private/', '')
+                        latestReceiptKey: dbReceiptId.replace('private/', '').replace(newPrefix+"/",'')
 
                     }
 

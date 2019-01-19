@@ -15,10 +15,11 @@
  */
 
 const colors = {
-  primary: '#d50000',
+  primary: '#DB1040',
   buttonEnabledColor:'#fff',
   accentColor:'#ff5131',
   primaryTextColor:'#fff',
+  bottomTabColor:'#A9A9A9',
   buttonDisabledColor:'#e0e0e0',
   secondary: '#8cd5df',
   lightGray: '#e3e3e3',

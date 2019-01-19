@@ -13,9 +13,10 @@
 import React from 'react';
 import {
   View,
-  Text,
+  
   CameraRoll,
   StyleSheet,
+  Picker,
   TouchableWithoutFeedback,
   Modal,
   Dimensions,
@@ -23,16 +24,18 @@ import {
   ScrollView,
   ImageStore,
   Platform,
+  TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
 import {
-  FormLabel,
-  FormInput,
+ Text,
+  Input,
   FormValidationMessage,
   Button,
   Icon,
   ButtonGroup,
 } from 'react-native-elements';
+import IonicanIcon from 'react-native-vector-icons/dist/Ionicons';
 import RNFetchBlob from 'rn-fetch-blob';
 import { connect } from "react-redux";
 import uuid from 'react-native-uuid';
@@ -47,19 +50,21 @@ import {storeReceipt} from '../store/actions/receipts';
 import {modalOpen} from '../store/actions/ui';
 import RenderPDF from '../components/RenderPDF';
 import RenderHTML from '../components/RenderHTML';
-
+import {CATEGORIES} from '../Utils/avatarPrefix';
 const { width, height } = Dimensions.get('window');
 
 let styles = {};
 
 class AddReceipt extends React.Component {
  
+  
+
 
   state = {
     selectedImage: {},
     selectedImageIndex: null,
     images: [],
-   
+   showPicker:false,
     modalVisible: false,
     isPicSelInProgress:false,
    
@@ -75,6 +80,16 @@ class AddReceipt extends React.Component {
     Navigation.events().bindComponent(this);
    
   }
+  navigationButtonPressed({ buttonId }) {
+      
+    if(buttonId==='cancel'){
+    Navigation.dismissModal(this.props.componentId);
+    }else if(buttonId==='save'){
+     this.props.isEdit?this.EditReceipt(): this.AddReceipt();
+    }
+    
+  }
+
   updateSelectedImage = (selectedImage, selectedImageIndex) => {
 
     if (selectedImageIndex === this.state.selectedImageIndex) {
@@ -276,8 +291,41 @@ class AddReceipt extends React.Component {
     }
   }
 
+  _getPicker=()=>{
+    const categories=CATEGORIES.map(category=>{
+      return (<Picker.Item label={category} value={category} />)
+     });
+return this.state.showPicker?
+   (  <View
+      style={{ bottom:0,right:0, position:'absolute',height: 200, width:width,zIndex:999,backgroundColor:"#efefef" }}
+        >
+       <Picker
+      
+       mode='dropdown'
+selectedValue={this.state.input.category}
+
+onValueChange={(itemValue, itemIndex) => this.updateInput('category', itemValue)}>
+{
+  categories
+}
+
+</Picker>
+</View>):null;
+
+  }
+
+  handleCategorySelection=()=>{
+    this.setState(prevState=>{
+      return {
+        showPicker:!prevState.showPicker
+
+      }
+    })
+  }
   render() {
     const { selectedImageIndex, selectedImage } = this.state;
+  
+
     const editedImage=(<Image
         style={styles.addImageContainer}
         source={{ uri: selectedImage.node?selectedImage.node.image.uri:null }}
@@ -301,58 +349,100 @@ class AddReceipt extends React.Component {
     if(this.props.isModalClosed){
        Navigation.dismissModal(this.props.componentId);
     }
-    const addOrEditReceipt=this.props.isEdit?( <Button
-        //fontFamily='lato'
-        containerViewStyle={{ marginTop: 20 }}
-        backgroundColor={colors.primary}
-        large
-        title="Edit Receipt"
-        onPress={this.EditReceipt}
-      />):(<Button
-          containerViewStyle={{ marginTop: 20 }}
-        backgroundColor={colors.primary}
-        large
-        title="Add Receipt"
-        onPress={this.AddReceipt}
-      />);
     
 
     return (
   this.state.isPicSelInProgress===false?
     
       <View style={{ flex: 1, paddingBottom: 0 }}>
-        <ScrollView style={{ flex: 1 }}>
-        <FormLabel>Title</FormLabel>
-          <FormInput
-            inputStyle={styles.input}
-            selectionColor={colors.primary}
-            autoCapitalize="none"
-            autoCorrect={false}
-            underlineColorAndroid="transparent"
-            editable={true}
-            placeholder="Please enter receipt's title"
-            returnKeyType="next"
-            ref="name"
-            textInputRef="nameInput"
-            onChangeText={(name) => this.updateInput('title', name)}
-            value={this.state.input.title}
-          />
+        <ScrollView 
+        contentContainerStyle={{flex: 1}}
+        style={{ flex: 1 }}>
+       
+
+<Input
+containerStyle={{width:width}}
+inputStyle={{fontSize:15,width:"100%"}}
+ inputContainerStyle={{borderRadius:25,
+  margin:5,
+  fontSize:15,
+  //padding:5,
+  alignSelf:"center",
+ // borderTopWidth:1,
+  //borderLeftWidth:1,
+  //borderRightWidth:1,
+  borderColor:colors.primary}}
+  value={this.state.input.title}
+  placeholder="Please enter receipt's title"
+  autoCapitalize="none"
+  autoCorrect={false}
+  returnKeyType="next"
+  
+  onChangeText={(name) => this.updateInput('title', name)}
+  leftIcon={
+    <Icon
+      name='title'
+      size={24}
+      color={colors.accentColor}
+    />
+  }
+  
+/>
+
+<View 
+style={{width:width}}
+>
+
+<TouchableOpacity
+style={{flexDirection:"row",
+alignContent:"center",
+marginLeft:15,
+marginRight:15,
+marginBottom:10,
+//borderRadius:25,
+//marginRight:15,
+padding:5,
+borderBottomWidth:1,
+  //borderLeftWidth:1,
+  //borderRightWidth:1,
+  borderColor:colors.accentColor,
+  justifyContent:"space-between",
+  alignItems:"center"
+}}
+onPress={this.handleCategorySelection}
+>
+<View style={{flexDirection:"row"}}>
+<View style={{marginRight:5}}>
+<Icon 
+  color={colors.accentColor}
+  name="group-work" size={24}/>
+</View>
+ <Text style={styles.labelStyle}>{this.state.input.category?this.state.input.category:'Select Category'}</Text>
+ </View>
+ <View style={{flexDirection:"row"}}>
+
+ <Icon
+  color={colors.accentColor}
+  name="arrow-drop-down" size={30}/>
+{
+  this.state.showPicker?(
+    <View style={{marginLeft:5}}>
+  <Icon
+    onPress={()=>this.setState({showPicker:false})}
+    color={colors.accentColor}
+    name="check" size={24}/>
+    </View>
+    ):null
+  
+}
+
+</View>
+</TouchableOpacity>
+</View>
+      {   
+       this._getPicker() 
+      }
          
-          <FormLabel>Category</FormLabel>
-          <FormInput
-            inputStyle={styles.input}
-            selectionColor={colors.primary}
-            autoCapitalize="none"
-            autoCorrect={false}
-            underlineColorAndroid="transparent"
-            editable={true}
-            placeholder="Please enter category for receipt"
-            returnKeyType="next"
-            ref="breed"
-            textInputRef="breedInput"
-            onChangeText={(category) => this.updateInput('category', category)}
-            value={this.state.input.category}
-          />
           {
             !this.props.cameraPicUri?(
           <TouchableWithoutFeedback
@@ -369,12 +459,7 @@ class AddReceipt extends React.Component {
             }
 </TouchableWithoutFeedback>):camContent
           }
-          
-         
-         {addOrEditReceipt}
-          <Text
-            onPress={()=>{Navigation.dismissModal(this.props.componentId);}}
-            style={styles.closeModal}>Dismiss</Text>
+    
         </ScrollView>
         <Modal
           visible={this.props.isLoading}
@@ -399,7 +484,7 @@ styles = StyleSheet.create({
   addImageContainer: {
     width: width,
     marginTop:5,
-    height: 0.5*height,
+    height: 0.80*height,
     backgroundColor: colors.lightGray,
     borderColor: colors.mediumGray,
     borderWidth: 1.5,
@@ -418,6 +503,10 @@ styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     textAlign: 'center',
+  },
+  labelStyle:{
+  fontSize:15,
+  alignContent:"center"
   },
   title: {
     marginLeft: 20,

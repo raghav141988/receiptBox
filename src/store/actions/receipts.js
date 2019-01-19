@@ -1,8 +1,12 @@
 import { ADD_DEVICE, STORE_RECEIPT,DELETE_RECEIPTS,FETCH_LATEST_RECEIPTS,
     FETCH_MY_RECEIPTS,RECEIPT_DETAIL,SEARCH_RECEIPTS,TAG_RECEIPT,
-    SHARE_RECEIPT,DOWNLOAD_RECEIPT,FETCH_UNKNOWN_RECEIPTS,RECEIPT_STORE_SUCCESS,NOTIFICATION_OPENED,
-    STORE_DEVICE_TOKEN,RECEIPT_DETAIL_RESET,REMOVE_RECEIPTS,STORE_LATEST_RECEIPTS,STORE_MY_RECEIPTS,ADD_UPDATE_RECEIPT_SUCCESS, RECEIPT_DETAIL_SUCCESS, MOVE_TO_MY_RECEIPTS_SUCCESS
+    SHARE_RECEIPT,DOWNLOAD_RECEIPT,MARK_INBOX_SELECTION,FETCH_UNKNOWN_RECEIPTS,RECEIPT_STORE_SUCCESS,NOTIFICATION_OPENED,
+    STORE_DEVICE_TOKEN,RECEIPT_DETAIL_RESET,REMOVE_RECEIPTS,STORE_LATEST_RECEIPTS,STORE_UNKNOWN_RECEIPTS,STORE_MY_RECEIPTS,ADD_UPDATE_RECEIPT_SUCCESS, RECEIPT_DETAIL_SUCCESS, UNKNOWN_TO_MY_RECEIPTS_SUCCESS,MOVE_TO_MY_RECEIPTS_SUCCESS,
+    STORE_NOTIFICATION,
+    FETCH_NOTIFICATIONS
 } from './actionTypes';
+import Constants from '../../Utils/constants';
+import {deleteNotification} from './notificationActions';
 import {uiStartLoading,uiStopLoading,modalClose} from './ui';
 import RNFetchBlob from 'rn-fetch-blob';
 import { Buffer } from 'buffer';
@@ -15,17 +19,44 @@ import base64 from 'base64-js'
 /* Function to store the user device token in the database */
 export const addDevice = (deviceToken) => {
     return async dispatch =>{
+        try {
         //THIS IS WHERE WE CALL API TO STORE THE DEVICE TOKEN
         const apiName = 'userDetailsApi';
         const path = '/user';
+     //GET THE RECORD FROM DB 
+   
+     const user = await Auth.currentAuthenticatedUser();
+        
+     const response=  await API.get(apiName, path+'/:'+user.attributes.sub);
+     let existingData={}
+    
+    if(response!==undefined && response.length>0){
+        existingData={
+            activeInd:true,
+            notificationSettings:{
+                ...response[0].notificationSettings
+            }
+        }
+    }else {
+        existingData={
+            activeInd:true,
+            notificationSettings:{
+                alertExpiringReceipts:true,
+                alertUnknwonRcptExpiring:true
+            }
+        }
+    }
+   
         const data = {
        
-          body: {deviceToken:deviceToken.replace('-','')}
+          body: {deviceToken:deviceToken.replace('-',''),
+              ...existingData
         }
-        try {
+        }
+  
         
-          const response= await API.put(apiName, path, data);
-       
+          const postResponse= await API.post(apiName, path, data);
+         
           //DEVICE TOKEN IS SAVED IN DB STORE IT IN STATE
           dispatch({
              type: STORE_DEVICE_TOKEN,
@@ -121,7 +152,7 @@ export const storeReceipt = (receipt) => {
          
            }
            catch(err){
-            console.log('User device token save failed'+err);
+            console.log('Storing receipt failed'+err);
            }
 
 
@@ -133,7 +164,7 @@ export const storeReceipt = (receipt) => {
     };
 };
 /* DELETES SELECTED RECEIPTS FROM THE STORAGE */
-export const deleteReceipts =  (receipts) => {
+export const deleteReceipts =  (receipts,isReceiptFolder) => {
     return async dispatch=> {
         dispatch(uiStartLoading());
         let deletedReceipts=[];
@@ -141,7 +172,7 @@ export const deleteReceipts =  (receipts) => {
        let level='private';
         var results = await Promise.all(receipts.map(async (receipt) => {
             try {
-                 level=receipt.isLatestReceipt!==undefined && receipt.isLatestReceipt?'public':'private';
+                 level=receipt.isLatestReceipt!==undefined && receipt.isLatestReceipt?isReceiptFolder?'protected':'public':'private';
  
                 const result= await Storage.remove(receipt.receiptKey, {
                     level,
@@ -149,7 +180,7 @@ export const deleteReceipts =  (receipts) => {
                 });
             
           console.log('S3 delete succeeed'+result);
-            if(level!=='public'){
+            if(level!=='public' && level!=='protected' ){
         const apiName = 'receiptsAPI';
           const path = '/receipts/object/:'+receipt.userSub+'/'+receipt.receiptKey ;
    
@@ -163,11 +194,22 @@ export const deleteReceipts =  (receipts) => {
                   createdDate:receipt.createdDate
               }
           }
-          console.log(data);
+        
          
-         const response=  await API.del(apiName, path,data)
+         const response=  await API.del(apiName, path,data);
          
-         ;
+            const days= datediff(new Date(),new Date(receipt.receiptDate));
+            console.log(days);
+            const conditionDays=isReceiptFolder?10:4;
+           // if(days>conditionDays){
+                //MOST likely notification entry exists delete it
+              const notification={
+                 receiptKey:receipt.receiptKey.replace(receipt.userSub+"/",'')
+              }
+              dispatch(deleteNotification(notification));
+           // }
+        
+
         }
           
           
@@ -196,13 +238,13 @@ export const deleteReceipts =  (receipts) => {
             console.log('Delete receipts partially succeeded');
              //TODO DISPATCH Partial success action
 
-             dispatch(removeReceipts(deletedReceipts,level));
+             dispatch(removeReceipts(deletedReceipts,level,isReceiptFolder));
              dispatch(deleteReceiptSuccess());
         }
         else {
             console.log('Delete receipts succeeded');
             console.log(deletedReceipts);
-             dispatch(removeReceipts(deletedReceipts,level));
+             dispatch(removeReceipts(deletedReceipts,level,isReceiptFolder));
              dispatch(deleteReceiptSuccess());
         }
     };
@@ -216,8 +258,10 @@ export const fetchLatestReceipts = () => {
        try{
         const user = await Auth.currentAuthenticatedUser();
         
-      
-        const result=  await Storage.list(user.attributes.sub, {level: 'public'});
+      console.log(user);
+        const result=  await Storage.list(user.attributes.sub+"/", {level: 'protected'});
+        console.log('result');
+        console.log(result);
         const receipts=convertResultsToReceipts(result,user.attributes.sub);
        dispatch(storeLatestFetchedReceipts(receipts));
        dispatch(uiStopLoading());
@@ -253,7 +297,7 @@ export const fetchMyReceipts = () => {
     }
 };
 
-export const fetchMyReceiptDetails = (receipt) => {
+export const fetchMyReceiptDetails = (receipt,isReceiptFolder) => {
     return async (dispatch)=>{
         dispatch(uiStartLoading());
       
@@ -264,8 +308,8 @@ export const fetchMyReceiptDetails = (receipt) => {
    try{
 //      const response= await API.get(apiName, path);
 // console.log(response);
-console.log((receipt.isLatestReceipt));
-const level=receipt.isLatestReceipt!==undefined && receipt.isLatestReceipt===true?'public':'private';
+
+const level=receipt.isLatestReceipt!==undefined && receipt.isLatestReceipt===true?isReceiptFolder?'protected':'public':'private';
 console.log((receipt.receiptKey));
     const result=  await Storage.get(receipt.receiptKey, {level: level,
       expires: 300,
@@ -284,23 +328,45 @@ catch(err){
  }
 }
 
-export const moveToMyReceipts=(receipts)=>{
+export const datediff=(first, second)=> {
+    // Take the difference between the dates and divide by milliseconds per day.
+    // Round to nearest whole number to deal with DST.
+    return Math.round((first-second)/(1000*60*60*24));
+}
+
+
+export const moveToMyReceipts=(receipts,isReceiptFolder)=>{
     return async dispatch=>{
         //CALL MOVE MY DOCUMENTS HANDLER WITH SPECIFIED RECEIPT KEYS
         const apiName = 'moveReceiptsAPI';
         const path = '/moveReceipts';
         const data = {
     
-         body: {receipts:receipts }
+         body: {receipts:receipts,
+            isReceiptFolder:isReceiptFolder
+         }
      }
      try {
         
        const response= await API.post(apiName, path, data);
-      console.log(response);
+
       // dispatch(storeReceiptDetail(result,receipt));
        dispatch(uiStopLoading());
        if(response.succeededReceipts.length>0){
-       dispatch(moveReceiptSuccess(response.succeededReceipts));
+        //DELETE EACH SUCCEDED RECEIPTS FROM NOTIFICATION
+        response.succeededReceipts.map(receipt=>{
+           const days= datediff(new Date(),new Date(receipt.receiptDate));
+           console.log(days);
+           const conditionDays=isReceiptFolder?10:4;
+          // if(days>conditionDays){
+               //MOST likely notification entry exists delete it
+             const notification={
+                receiptKey:receipt.receiptKey.replace(receipt.userSub+"/",'')
+             }
+             dispatch(deleteNotification(notification));
+          // }
+        });
+       isReceiptFolder? dispatch(moveReceiptSuccess(response.succeededReceipts)):dispatch(unknownToReceiptSuccess(response.succeededReceipts));
        }
       
         }
@@ -367,6 +433,13 @@ export const moveReceiptSuccess =(receipts)=>{
         receipts:receipts
     }
 }
+export const unknownToReceiptSuccess =(receipts)=>{
+    return {
+        type: UNKNOWN_TO_MY_RECEIPTS_SUCCESS,
+        receipts:receipts
+    }
+}
+
 export const downloadReceipt = (receipt) => {
     return {
         type: DOWNLOAD_RECEIPT,
@@ -375,23 +448,46 @@ export const downloadReceipt = (receipt) => {
     };
 };
 
-export const fetchUnknownReceipts = () => {
+export const markInboxSelection=(isReceiptFolder)=>{
     return {
-        type: FETCH_UNKNOWN_RECEIPTS,
-     
+        type: MARK_INBOX_SELECTION,
+        isReceiptFolder:isReceiptFolder
        
     };
+}
+
+export const fetchUnknownReceipts = () => {
+    return async dispatch=>{
+        dispatch(uiStartLoading());
+        
+       try{
+        const user = await Auth.currentAuthenticatedUser();
+        
+      
+        const result=  await Storage.list(user.attributes.sub, {level: 'public'});
+        const receipts=convertResultsToReceipts(result,user.attributes.sub);
+        console.log(result);
+       dispatch(storeUnknownFetchedReceipts(receipts));
+       dispatch(uiStopLoading());
+
+       }
+       catch(err){
+           console.log('Failed to fetch unknown Receipts'+err);
+           dispatch(uiStopLoading());
+       }
+
+    }
 };
 
 
 
-export const removeReceipts =(receipts,level)=>{
+export const removeReceipts =(receipts,level,isReceiptFolder)=>{
    
     return {
         type:REMOVE_RECEIPTS,
         level:level,
-        removableReceipts:receipts
-
+        removableReceipts:receipts,
+        isReceiptFolder:isReceiptFolder
     }
     
 }
@@ -399,6 +495,15 @@ export const storeLatestFetchedReceipts =(receipts)=>{
     return {
         type:STORE_LATEST_RECEIPTS,
         latestReceipts:receipts,
+       
+
+    }
+}
+
+export const storeUnknownFetchedReceipts =(receipts)=>{
+    return {
+        type:STORE_UNKNOWN_RECEIPTS,
+        unknownReceipts:receipts,
        
 
     }
@@ -450,7 +555,7 @@ export const resetReceiptDetail =()=>{
       return {
           createdDate:result.lastModified,
           receiptKey:result.key,
-          category:'Expense',
+          category:Constants.DEFAULT_RECEIPT_CATEGORY,
           contentType:mime.lookup(result.key),
           title:result.key.toString().replace(userSub+'/',''),
           userSub:userSub,

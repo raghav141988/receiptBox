@@ -57,11 +57,11 @@ app.get(path, function(req, res) {
   condition[partitionKeyName] = {
     ComparisonOperator: 'EQ'
   }
-  console.log("listFunction called****** ");
-  console.log("userIdPresent? "+userIdPresent);
+  
   console.log(req.apiGateway);
-  const userSub = req.apiGateway.event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1]
-console.log("userSub: "+userSub);
+ // const userSub = req.apiGateway.event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1]
+   const userId=req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH;
+
 
 
 
@@ -71,7 +71,7 @@ console.log("userSub: "+userSub);
     KeyConditions: {
       userSub: {
         ComparisonOperator: 'EQ',                                                                                                                        
-        AttributeValueList: [userSub || UNAUTH],
+        AttributeValueList: [userId || UNAUTH],
       },
     },
   } 
@@ -91,14 +91,14 @@ console.log("userSub: "+userSub);
 
 app.get(path + '/object' + hashKeyPath + sortKeyPath, function(req, res) {
   var params = {};
-  console.log("single function called****** ");
-  console.log("userIdPresent? "+userIdPresent);
-  console.log("req.apiGateway? "+req.apiGateway);
+  
   const userSub = req.apiGateway.event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1]
-console.log("userSub: "+userSub);
+  const userId=req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH;
+
+
 
   if (userIdPresent && req.apiGateway) {
-    params[partitionKeyName] = userSub|| UNAUTH;
+    params[partitionKeyName] = userId|| UNAUTH;
   } else {
     params[partitionKeyName] = req.params[partitionKeyName];
     try {
@@ -143,14 +143,15 @@ app.put(path, function(req, res) {
   
   if (userIdPresent) {
     const userSub = req.apiGateway.event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1]
-    //req.body['receiptId'] = uuid.v1();
-    req.body['userSub'] = userSub|| UNAUTH;
+    const userId=req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH;
+
+    req.body['userSub'] = userId|| UNAUTH;
     if(req.body['createdDate']===null ||req.body['createdDate']===undefined){
     req.body['createdDate'] = ''+new Date();
     }
     req.body['title-category']= req.body['title']+'-'+req.body['category']
   }
-console.log(req.body);
+
   let putItemParams = {
     TableName: tableName,
     Item: req.body
@@ -172,8 +173,9 @@ app.post(path, function(req, res) {
   
   if (userIdPresent) {
     const userSub = req.apiGateway.event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1]
+    const userId=req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH;
 
-    req.body['userSub'] = userSub || UNAUTH;
+    req.body['userSub'] = userId || UNAUTH;
   }
 
   let putItemParams = {
@@ -196,8 +198,9 @@ app.post(path, function(req, res) {
 app.delete(path + '/object' + hashKeyPath + sortKeyPath, function(req, res) {
   var params = {};
   const userSub = req.apiGateway.event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1]
-    //req.body['receiptId'] = uuid.v1();
-    req.body['userSub'] = userSub|| UNAUTH;
+  const userId=req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH;
+
+    req.body['userSub'] = userId|| UNAUTH;
   if (userIdPresent && req.apiGateway) {
     params[partitionKeyName] = userSub || UNAUTH;
   } else {

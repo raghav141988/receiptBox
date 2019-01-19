@@ -9,7 +9,7 @@ const headingText = props => (
 
 const styles = StyleSheet.create({
   textHeading: {
-    fontSize: 18,
+    fontSize: 15,
     
   }
 });

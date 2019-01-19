@@ -46,7 +46,7 @@ import {showAddReceipt} from '../components/addReceipt';
     deleteReceipt=()=>{
      const deletableReceipts=[];
      deletableReceipts.push({...this.props.receipt}) ;
-     this.props.deleteReceipts(deletableReceipts);
+     this.props.deleteReceipts(deletableReceipts,this.props.isReceiptFolder);
     }
     componentDidDisappear() {
         console.log('compoment did disappear');
@@ -59,7 +59,7 @@ import {showAddReceipt} from '../components/addReceipt';
        this.props.resetUIState();
        if(this.props.receipt!==null){
          
-         this.props.fetchReceiptDetail(this.props.receipt);
+         this.props.fetchReceiptDetail(this.props.receipt,this.props.isReceiptFolder);
        } 
     }
     
@@ -108,10 +108,10 @@ const mapStateToProps = state => {
   const mapDispatchToProps = dispatch => {
     return {
         resetUIState:()=>dispatch(resetUIState()),
-        fetchReceiptDetail: (receipt) => dispatch(fetchMyReceiptDetails(receipt)),
+        fetchReceiptDetail: (receipt,isReceiptFolder) => dispatch(fetchMyReceiptDetails(receipt,isReceiptFolder)),
        shareReceipt:(receipt)=>dispatch(shareReceipt(receipt)),
      
-        deleteReceipts:(receipts)=>dispatch(deleteReceipts(receipts)),
+        deleteReceipts:(receipts,isReceiptFolder)=>dispatch(deleteReceipts(receipts,isReceiptFolder)),
         openModal:()=>  dispatch(modalOpen())
     };
   };

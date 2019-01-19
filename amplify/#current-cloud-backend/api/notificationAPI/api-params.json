@@ -1,0 +1,35 @@
+{
+    "paths": [
+        {
+            "name": "/notifications",
+            "lambdaFunction": "notificationFunction",
+            "privacy": {
+                "private": true,
+                "auth": "rw"
+            }
+        }
+    ],
+    "resourceName": "notificationAPI",
+    "apiName": "receiptmanager143588f2",
+    "functionArns": [
+        {
+            "lambdaFunction": "notificationFunction"
+        }
+    ],
+    "privacy": {
+        "auth": 1,
+        "unauth": 0,
+        "authRoleName": "eceiptanager-20181201161718-authRole",
+        "unAuthRoleName": "eceiptanager-20181201161718-unauthRole"
+    },
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "notificationFunction",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        }
+    ]
+}

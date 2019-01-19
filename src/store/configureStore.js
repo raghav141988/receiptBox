@@ -2,10 +2,11 @@ import { createStore, combineReducers, compose,applyMiddleware } from 'redux';
 import thunk from "redux-thunk";
 import receiptReducer from './reducers/receipts';
 import uiReducer from './reducers/ui';
-
+import notificationReducer from './reducers/notifications';
 const rootReducer = combineReducers({
     receipts: receiptReducer,
-    ui:uiReducer
+    ui:uiReducer,
+    notification:notificationReducer
 });
 
 let composeEnhancers = compose;

@@ -7,8 +7,10 @@ import {
   RECEIPT_DETAIL_SUCCESS,
   RECEIPT_DETAIL_RESET,
   MOVE_TO_MY_RECEIPTS_SUCCESS,
-
-  ADD_UPDATE_RECEIPT_SUCCESS
+  UNKNOWN_TO_MY_RECEIPTS_SUCCESS,
+  ADD_UPDATE_RECEIPT_SUCCESS,
+  STORE_UNKNOWN_RECEIPTS,
+  MARK_INBOX_SELECTION
  
 
 } from "../actions/actionTypes";
@@ -17,6 +19,8 @@ import { removeReceipts } from "../actions/receipts";
 const initialState = {
   myReceipts: [],
   latestReceipts:[],
+  isReceiptFolder:true,
+  unknownReceipts:[],
   receiptDetail:{
     uri:null,
     receipt:null
@@ -35,6 +39,11 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         latestReceipts:action.latestReceipts
+      }
+      case STORE_UNKNOWN_RECEIPTS:
+      return {
+        ...state,
+        unknownReceipts:action.unknownReceipts
       }
       case ADD_UPDATE_RECEIPT_SUCCESS:
       return {
@@ -82,9 +91,16 @@ const reducer = (state = initialState, action) => {
         ...state,
         myReceipts:action.myReceipts
       }
+      case MARK_INBOX_SELECTION:{
+        return {
+          ...state,
+          isReceiptFolder:action.isReceiptFolder
+        }
+      }
       case REMOVE_RECEIPTS:
-      const key=action.level==='public'?'latestReceipts':'myReceipts';
-      const receipts=action.level==='public'?state.latestReceipts:state.myReceipts;
+      
+      const key=action.isReceiptFolder?'latestReceipts': action.level==='public'?'unknownReceipts':'myReceipts';
+      const receipts=action.isReceiptFolder?state.latestReceipts:action.level==='public'?state.unknownReceipts:state.myReceipts;
       
       return {
         ...state,
@@ -101,7 +117,12 @@ const reducer = (state = initialState, action) => {
          myReceipts:addToMyReceipts(state.myReceipts,action.receipts),
         latestReceipts:updateLatestReceipts(state.latestReceipts,action.receipts)
       }
-    
+      case UNKNOWN_TO_MY_RECEIPTS_SUCCESS:
+      return {
+        ...state,
+         myReceipts:addToMyReceipts(state.myReceipts,action.receipts),
+        unknownReceipts:updateLatestReceipts(state.unknownReceipts,action.receipts)
+      }
     default:
       return state;
   }

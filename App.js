@@ -17,14 +17,17 @@ import { Navigation } from "react-native-navigation";
 import PushNotification from '@aws-amplify/pushnotification';
 import { Provider } from "react-redux";
 import configureStore from "./src/store/configureStore";
-import Icon from 'react-native-vector-icons/dist/MaterialIcons';
+import Icon from 'react-native-vector-icons/dist/Ionicons';
 /* ALL SCREEN IMPORTS */
 import MyReceipts from './src/screens/MyReceipts'
 import AddReceipt from './src/screens/AddReceipt';
+
 import LatestReceipts from './src/screens/LatestReceipts';
 import ReceiptDetail from './src/screens/ReceiptDetail';
-import CollapsibleScreen from './src/screens/CollapsibleScreen';
+import Notifications from './src/screens/Notification';
 import {colors} from './src/Utils/theme';
+import UnknownReceipts from './src/screens/UnknownReceipts';
+import MyAccount from './src/screens/MyAccount';
 /* ALL SCREEN IMPORTS END */
  const store = configureStore();
 
@@ -32,10 +35,6 @@ configureAmplify(store);
 
 type Props = {};
 /* REGISTER FOR ALL THE SCREENS GLOBALLY */
-Navigation.registerComponent(
-  "receiptManager.search-screen",
-  () => CollapsibleScreen
-);
 
 Navigation.registerComponentWithRedux(
   "receiptManager.addreceipt-screen",
@@ -64,10 +63,45 @@ Navigation.registerComponentWithRedux(
   Provider,
   store
 );
+Navigation.registerComponentWithRedux(
+  "receiptManager.unknownReceipts-screen",
+  () => UnknownReceipts,
+  
+  Provider,
+  store
+);
+
+
+Navigation.registerComponentWithRedux(
+  "receiptManager.notifications-screen",
+  () => Notifications,
+  
+  Provider,
+  store
+);
+
+Navigation.registerComponentWithRedux(
+  "receiptManager.myaccounts-screen",
+  () => MyAccount,
+  
+  Provider,
+  store
+);
+
+Navigation.registerComponentWithRedux(
+  "receiptManager.notification-settings-screen",
+  () => UnknownReceipts,
+  
+  Provider,
+  store
+);
+
 
 Promise.all([
-  Icon.getImageSource("fiber-new" , 30),
-  Icon.getImageSource("receipt" , 30)
+  Icon.getImageSource(Platform.OS==='ios'?"ios-home":"md-home" , 25),
+  Icon.getImageSource(Platform.OS==='ios'?"ios-mail-open":"md-mail-open" , 25),
+  Icon.getImageSource(Platform.OS==='ios'?"ios-notifications":"md-notifications" , 25),
+  Icon.getImageSource(Platform.OS==='ios'?"ios-person":"md-person" , 25)
   
 ]).then(sources => {
   
@@ -81,17 +115,28 @@ root: {
   appStyle: {
     navBarTitleFontFamily: 'Lato-Bold',
     navBarNoBorder: true,
+  
+},
+
+statusBar: {
+  visible: false,
+  style:  'dark'
 },
     
       bottomTabs: {
         id: 'tabs',
         options: {
+          statusBar: {
+            visible: false,
+            style:  'dark'
+          },
           topbar: {
+           // hideOnScroll: true,
             visible: true,
             buttonColor: colors.buttonEnabledColor,
             background:{
               color: colors.primary,
-              translucent: true,
+             // translucent: true,
             },
             title: {
               text: 'ReceiptBox',
@@ -109,11 +154,16 @@ root: {
                   component: {
                     name: 'receiptManager.myreceipts-screen',
                     options: {
+                      statusBar: {
+                        visible: false,
+                        style:  'dark'
+                      },
                       topBar: {
+                       // hideOnScroll: true,
                         buttonColor: colors.buttonEnabledColor,
                         background:{
                           color: colors.primary,
-                          translucent: true,
+                         // translucent: true,
                         },
                         title: {
                           text: 'ReceiptBox',
@@ -136,10 +186,12 @@ root: {
                       bottomTab: {
                         fontSize: 12,
                         text: 'My Receipts',
-                        icon: sources[1],
-                      
+                        textColor:colors.bottomTabColor,
+                        color: colors.bottomTabColor,
+                        icon: sources[0],
+                        iconColor:colors.bottomTabColor,
                        
-                        color: colors.primaryTextColor,
+                       
                       //  selectedTextColor: colors.,
                         selectedIconColor: colors.primary
                       }
@@ -158,15 +210,16 @@ root: {
                     name: 'receiptManager.latestReceipts-screen',
                     options: {
                       topBar: {
+                       // hideOnScroll: true,
                         animate: true, 
                        
                           buttonColor: colors.buttonEnabledColor,
                           background:{
                             color: colors.primary,
-                            translucent: true,
+                           // translucent: true,
                           },
                           title: {
-                            text: 'ReceiptBox',
+                            text: 'Inbox',
                             color: colors.primaryTextColor,
                           },
                        
@@ -183,8 +236,10 @@ root: {
                       bottomTab: {
                         text: 'Inbox',
                         fontSize: 12,
-                        icon: sources[0],
-                        
+                        icon: sources[1],
+                        textColor:colors.bottomTabColor,
+                        color: colors.bottomTabColor,
+                        iconColor:colors.bottomTabColor,
                         //selectedTextColor: colors.primaryTextColor,
                         selectedIconColor: colors.primary
                       }
@@ -194,6 +249,111 @@ root: {
               ]
             }
           },
+          
+          {
+          stack: {
+            id: 'notifications',
+            children: [
+              {
+                
+                component: {
+                  name: 'receiptManager.notifications-screen',
+                  options: {
+                    topBar: {
+                     // hideOnScroll: true,
+                      buttonColor: colors.buttonEnabledColor,
+                      background:{
+                        color: colors.primary,
+                       // translucent: true,
+                      },
+                      title: {
+                        text: 'Notifications',
+                        color: colors.primaryTextColor,
+                      },
+                     
+                      animate: true, 
+                     
+                      // subtitle: {
+                      //   text: 'My Receipts',
+                      //   fontSize: 14,
+                      //   color: 'white',
+                      //   fontFamily: 'Helvetica'
+                        
+                     
+                      // },
+                      
+                      
+                    },
+                    bottomTab: {
+                      fontSize: 12,
+                      text: 'Notifications',
+                      icon: sources[2],
+                      textColor:colors.bottomTabColor,
+                        color: colors.bottomTabColor,
+                        iconColor:colors.bottomTabColor,
+                    
+                    //  selectedTextColor: colors.,
+                      selectedIconColor: colors.primary
+                    }
+                  }
+                },
+              },
+              
+            ]
+          }
+        },
+        {
+          stack: {
+            id: 'account',
+            children: [
+              {
+                
+                component: {
+                  name: 'receiptManager.myaccounts-screen',
+                  options: {
+                    topBar: {
+                     // hideOnScroll: true,
+                      buttonColor: colors.buttonEnabledColor,
+                      background:{
+                        color: colors.primary,
+                       // translucent: true,
+                      },
+                      title: {
+                        text: 'My Account',
+                        color: colors.primaryTextColor,
+                      },
+                     
+                      animate: true, 
+                     
+                      // subtitle: {
+                      //   text: 'My Receipts',
+                      //   fontSize: 14,
+                      //   color: 'white',
+                      //   fontFamily: 'Helvetica'
+                        
+                     
+                      // },
+                      
+                      
+                    },
+                    bottomTab: {
+                      fontSize: 12,
+                      text: 'Account',
+                      icon: sources[3],
+                      iconColor:colors.bottomTabColor,
+                     
+                      textColor:colors.bottomTabColor,
+                        color: colors.bottomTabColor,
+                    //  selectedTextColor: colors.,
+                      selectedIconColor: colors.primary
+                    }
+                  }
+                },
+              },
+              
+            ]
+          }
+        },
         ],
       },
     

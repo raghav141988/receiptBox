@@ -59,7 +59,9 @@ app.get(path + hashKeyPath, function(req, res) {
   }
   
   if (userIdPresent && req.apiGateway) {
-    condition[partitionKeyName]['AttributeValueList'] = [req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH ];
+    const userSub = req.apiGateway.event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1]|| UNAUTH ;
+
+    condition[partitionKeyName]['AttributeValueList'] = [userSub];
   } else {
     try {
       condition[partitionKeyName]['AttributeValueList'] = [ convertUrlType(req.params[partitionKeyName], partitionKeyType) ];
@@ -72,11 +74,12 @@ app.get(path + hashKeyPath, function(req, res) {
     TableName: tableName,
     KeyConditions: condition
   } 
-
+console.log( queryParams);
   dynamodb.query(queryParams, (err, data) => {
     if (err) {
       res.json({error: 'Could not load items: ' + err});
     } else {
+      console.log( data.Items);
       res.json(data.Items);
     }
   });
@@ -133,7 +136,10 @@ app.put(path, function(req, res) {
   const userSub = req.apiGateway.event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1]
   if (userIdPresent) {
     req.body['userId'] = userSub || UNAUTH;
+    req.body['userCognitoId'] = req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH;
+
   }
+ 
 
   let putItemParams = {
     TableName: tableName,
@@ -154,19 +160,24 @@ app.put(path, function(req, res) {
 
 app.post(path, function(req, res) {
   
+  const userSub = req.apiGateway.event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1]
   if (userIdPresent) {
-    req.body['userId'] = req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH;
+    req.body['userId'] = userSub || UNAUTH;
+    req.body['userCognitoId'] = req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH;
+
   }
+ //GET IT 
 
   let putItemParams = {
     TableName: tableName,
     Item: req.body
   }
+
   dynamodb.put(putItemParams, (err, data) => {
     if(err) {
       res.json({error: err, url: req.url, body: req.body});
     } else{
-      res.json({success: 'post call succeed!', url: req.url, data: data})
+      res.json({success: 'put call succeed!', url: req.url, data: data})
     }
   });
 });
