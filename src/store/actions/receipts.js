@@ -12,10 +12,37 @@ import RNFetchBlob from 'rn-fetch-blob';
 import { Buffer } from 'buffer';
 import { deleteReceiptSuccess} from './ui';
 import mime from 'mime-types';
+import {storeCognitoUser,storeReceiptUser} from './userDetailsAction';
 import { API, Auth,Storage } from 'aws-amplify';
 //import Base64 from '../../Utils/Base64';
 import { Share,Alert } from 'react-native';
 import base64 from 'base64-js'
+
+
+
+const storeUser = async (dispatch) => {
+    try {
+        //THIS IS WHERE WE CALL API TO STORE THE DEVICE TOKEN
+        const apiName = 'userDetailsApi';
+        const path = '/user';
+        //GET THE RECORD FROM DB 
+
+        const user = await Auth.currentAuthenticatedUser();
+
+        const response = await API.get(apiName, path + '/:' + user.attributes.sub);
+        let existingData = {}
+
+        if (response !== undefined && response.length > 0) {
+
+            dispatch(storeCognitoUser(user));
+            dispatch(storeReceiptUser(response[0]));
+        }
+
+    } catch (err) {
+
+        console.log('User device token save failed' + err);
+    }
+}
 /* Function to store the user device token in the database */
 export const addDevice = (deviceToken) => {
     return async dispatch =>{
@@ -41,8 +68,12 @@ export const addDevice = (deviceToken) => {
         existingData={
             activeInd:true,
             notificationSettings:{
+                showPushNotifications:true,
+                alertIncomingReceipt:true,
+                alertUnKnownEmail:true,
                 alertExpiringReceipts:true,
-                alertUnknwonRcptExpiring:true
+                alertUnknwonRcptExpiring:false,
+
             }
         }
     }
@@ -61,7 +92,9 @@ export const addDevice = (deviceToken) => {
           dispatch({
              type: STORE_DEVICE_TOKEN,
              deviceToken:deviceToken
-          })
+          });
+          dispatch(storeCognitoUser(user));
+          dispatch(storeReceiptUser(data.body));
            }
            catch(err){
           
@@ -284,6 +317,7 @@ export const fetchMyReceipts = () => {
        
        try{
        const response=  await API.get(apiName, path);
+       storeUser(dispatch);
        dispatch(storeMyReceipts(response));
        dispatch(uiStopLoading());
 

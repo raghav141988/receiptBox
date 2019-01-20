@@ -23,11 +23,12 @@ const colors = {
   buttonDisabledColor:'#e0e0e0',
   secondary: '#8cd5df',
   lightGray: '#e3e3e3',
-  mediumGray: '#c9c9c9',
+  mediumGray: '#efefef',
   darkGray: '#6f7c8a',
   grayIcon: '#828f9b',
   mask: 'rgba(52, 52, 52, 0.8)',
   red: '#c0001d',
+  textFontSize:17
 };
 
 export {

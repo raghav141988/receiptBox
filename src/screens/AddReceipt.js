@@ -324,15 +324,15 @@ onValueChange={(itemValue, itemIndex) => this.updateInput('category', itemValue)
   }
   render() {
     const { selectedImageIndex, selectedImage } = this.state;
-  
 
     const editedImage=(<Image
         style={styles.addImageContainer}
         source={{ uri: selectedImage.node?selectedImage.node.image.uri:null }}
       />);
+      
     const receiptContent=this.props.isEdit?( this.props.receipt.contentType.toString().toUpperCase().includes('PDF')?
-    <View style={{flex:1}}><RenderPDF source={this.props.receipt.uri}/></View>:
-    <View style={{flex:1}}><RenderHTML contentType={this.props.receipt.contentType.toString()} source={this.props.receipt.uri}/></View>):null;
+    <View ><RenderPDF source={this.props.receipt.uri}/></View>:
+    <View ><RenderHTML contentType={this.props.receipt.contentType.toString()} source={this.props.receipt.uri}/></View>):null;
 
    
 
@@ -341,33 +341,29 @@ onValueChange={(itemValue, itemIndex) => this.updateInput('category', itemValue)
     
    
     //IF ADD RECEIPT IS FROM CAMERA, 
-  const camContent =this.props.cameraPicUri?(<Image
+  const camContent =this.props.cameraPicUri?(
+  <Image
     style={styles.addImageContainer}
     source={{ uri: this.props.cameraPicUri }}
   />):null
 
-    if(this.props.isModalClosed){
+if(this.props.isModalClosed){
        Navigation.dismissModal(this.props.componentId);
-    }
-    
-
-    return (
+ }
+return (
   this.state.isPicSelInProgress===false?
-    
-      <View style={{ flex: 1, paddingBottom: 0 }}>
-        <ScrollView 
+    (<View style={{ flex: 1, paddingBottom: 0 }}>
+      <ScrollView 
         contentContainerStyle={{flex: 1}}
         style={{ flex: 1 }}>
-       
-
-<Input
-containerStyle={{width:width}}
-inputStyle={{fontSize:15,width:"100%"}}
- inputContainerStyle={{borderRadius:25,
-  margin:5,
-  fontSize:15,
+           <Input
+            containerStyle={{width:width}}
+            inputStyle={{fontSize:17,width:"100%"}}
+            inputContainerStyle={{borderRadius:25,
+            margin:5,
+            fontSize:17,
   //padding:5,
-  alignSelf:"center",
+            alignSelf:"center",
  // borderTopWidth:1,
   //borderLeftWidth:1,
   //borderRightWidth:1,
@@ -393,24 +389,27 @@ inputStyle={{fontSize:15,width:"100%"}}
 style={{width:width}}
 >
 
-<TouchableOpacity
-style={{flexDirection:"row",
-alignContent:"center",
-marginLeft:15,
-marginRight:15,
-marginBottom:10,
-//borderRadius:25,
-//marginRight:15,
-padding:5,
-borderBottomWidth:1,
-  //borderLeftWidth:1,
-  //borderRightWidth:1,
-  borderColor:colors.accentColor,
-  justifyContent:"space-between",
-  alignItems:"center"
-}}
-onPress={this.handleCategorySelection}
->
+< TouchableOpacity
+style = {
+  {
+    flexDirection: "row",
+    alignContent: "center",
+    marginLeft: 15,
+    marginRight: 15,
+    marginBottom: 10,
+    
+    padding: 5,
+    borderBottomWidth: 1,
+    //borderLeftWidth:1,
+    //borderRightWidth:1,
+    borderColor: colors.accentColor,
+    justifyContent: "space-between",
+    alignItems: "center"
+  }
+}
+onPress = {
+    this.handleCategorySelection
+  } >
 <View style={{flexDirection:"row"}}>
 <View style={{marginRight:5}}>
 <Icon 
@@ -444,20 +443,32 @@ onPress={this.handleCategorySelection}
       }
          
           {
-            !this.props.cameraPicUri?(
-          <TouchableWithoutFeedback
-            onPress={this.getPhotos} style={{flex:1}}
-          > 
-            {
+            !this.props.cameraPicUri?
+          
+            
                 this.props.receipt==null &&
               selectedImageIndex === null ? (
+                //THIS IS WHERE ADD TOUCHABLE FEEDBACK
+                <TouchableWithoutFeedback onPress={this.getPhotos} style={{flex:1}}>
                 <View style={styles.addImageContainer}>
                   <Icon size={100} name='camera-roll' color={colors.grayIcon} />
                   <Text style={styles.addImageTitle}>Upload Photo</Text>
                 </View>
-              ) :<View style={styles.addImageContainer}>{content}</View> 
-            }
-</TouchableWithoutFeedback>):camContent
+                </TouchableWithoutFeedback>
+              ) :
+              <View style={{margin:15}}>
+                <TouchableOpacity style={{alignItems:"flex-end"}}
+                onPress={this.getPhotos}
+                >
+                <Icon name="insert-photo" size={30}
+                color={colors.accentColor}>
+                
+                </Icon>
+                </TouchableOpacity>
+                
+              <View style={styles.addImageContainer}>{content}</View> 
+              </View>
+:camContent
           }
     
         </ScrollView>
@@ -470,7 +481,7 @@ onPress={this.handleCategorySelection}
             size="large"
           />
         </Modal>
-      </View>
+      </View>)
     :
     <UploadPhoto fetchMorePhotos={this.fetchMorePhotos} data={this.state} updateSelectedImage={ this.updateSelectedImage} />
     );
@@ -483,15 +494,16 @@ styles = StyleSheet.create({
   },
   addImageContainer: {
     width: width,
+    padding:5,
     marginTop:5,
     height: 0.80*height,
     backgroundColor: colors.lightGray,
     borderColor: colors.mediumGray,
-    borderWidth: 1.5,
+    borderWidth: 1,
    
    // borderRadius: 60,
     alignSelf: 'center',
-    justifyContent: 'center',
+   justifyContent: 'center',
     alignItems: 'center',
   },
   addImageTitle: {
@@ -505,14 +517,14 @@ styles = StyleSheet.create({
     textAlign: 'center',
   },
   labelStyle:{
-  fontSize:15,
+  fontSize:17,
   alignContent:"center"
   },
   title: {
     marginLeft: 20,
     marginTop: 19,
     color: colors.darkGray,
-    fontSize: 18,
+    fontSize: 17,
     marginBottom: 15,
   },
   input: {

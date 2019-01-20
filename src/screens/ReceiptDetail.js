@@ -7,8 +7,8 @@ import RenderHTML from '../components/RenderHTML';
 import {Navigation} from 'react-native-navigation';
 import { modalOpen,resetUIState} from '../store/actions/ui';
 import {showAddReceipt} from '../components/addReceipt';
-
-
+import { withAuthenticator } from 'aws-amplify-react-native';
+import  {  Auth } from 'aws-amplify';
  class ReceiptDetail extends Component {
 
     constructor(props) {
@@ -63,8 +63,18 @@ import {showAddReceipt} from '../components/addReceipt';
        } 
     }
     
-    componentDidAppear() {
-        console.log('compoment did appear');
+   async componentDidAppear() {
+      try {
+        const user = await Auth.currentAuthenticatedUser();
+        if (user===undefined) {
+          this.props.onStateChange('signedOut', null);
+          
+        } 
+      } catch (err) {
+        console.log('err: ', err);
+        this.props.onStateChange('signedOut', null);
+      }
+    
      }
     
      
@@ -122,5 +132,5 @@ const mapStateToProps = state => {
     }
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ReceiptDetail);
+export default connect(mapStateToProps, mapDispatchToProps)(withAuthenticator(ReceiptDetail));
 

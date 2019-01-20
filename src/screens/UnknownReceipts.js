@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Animated, Alert,Button,Image, Platform, StyleSheet,DatePickerIOS, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
 
-import { withAuthenticator } from 'aws-amplify-react-native';
+//import { withAuthenticator } from 'aws-amplify-react-native';
 
 import Amplify, { API, Auth,Storage } from 'aws-amplify';
 import { connect } from "react-redux";
@@ -569,4 +569,4 @@ borderColor:'#ccc',
     }
   });
 
-export default connect(mapStateToProps, mapDispatchToProps)(withAuthenticator(UnknownReceipts))
+export default connect(mapStateToProps, mapDispatchToProps)(UnknownReceipts)

@@ -23,6 +23,7 @@ const sortKeyName = "";
 const sortKeyType = "";
 const hasSortKey = sortKeyName !== "";
 const path = "/user";
+const notificationPath="/user/notifications"
 const UNAUTH = 'UNAUTH';
 const hashKeyPath = '/:' + partitionKeyName;
 const sortKeyPath = hasSortKey ? '/:' + sortKeyName : '';
@@ -181,6 +182,42 @@ app.post(path, function(req, res) {
     }
   });
 });
+
+// Path matching for the notifications
+app.post(notificationPath, function(req, res) {
+  
+  const userSub = req.apiGateway.event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1]
+  if (userIdPresent) {
+    req.body['userId'] = userSub || UNAUTH;
+   // req.body['userCognitoId'] = req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH;
+
+  }
+ //GET IT 
+
+  let putItemParams = {
+    TableName: tableName,
+    Key: {
+      userId:userSub,
+     // userCognitoId:req.apiGateway.event.requestContext.identity.cognitoIdentityId
+    },
+    UpdateExpression: "set notificationSettings = :n",
+    ExpressionAttributeValues:{
+        ":n":req.body['notificationSettings'],
+       
+    },
+    ReturnValues:"UPDATED_NEW"
+  }
+console.log(putItemParams);
+
+  dynamodb.update(putItemParams, (err, data) => {
+    if(err) {
+      res.json({error: err, url: req.url, body: req.body});
+    } else{
+      res.json({success: 'put call succeed!', url: req.url, data: data})
+    }
+  });
+});
+
 
 /**************************************
 * HTTP remove method to delete object *

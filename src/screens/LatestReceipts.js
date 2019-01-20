@@ -205,11 +205,25 @@ const buttons = ['Receipts', 'Others']
       componentDidDisappear(){
         this.setState({didScreenAppear:false});
      }
-componentDidAppear(){
-  this.setState({didScreenAppear:true});
-  if(this.props.receipts===undefined ||this.props.receipts===null ||this.props.receipts.length===0){
-    this.fetchReceipts(this.state.isReceiptFolder);
+async componentDidAppear(){
+  try {
+    const user = await Auth.currentAuthenticatedUser();
+    if (user) {
+      this.setState({
+        didScreenAppear: true
+      });
+      if (this.props.receipts === undefined || this.props.receipts === null || this.props.receipts.length === 0) {
+        this.fetchReceipts(this.state.isReceiptFolder);
+      }
+    } else {
+      this.props.onStateChange('signedOut', null);
+    }
+  } catch (err) {
+    console.log('err: ', err);
+    this.props.onStateChange('signedOut', null);
   }
+
+  
 }
 componentWillReceiveProps(nextProps) {
 
@@ -395,7 +409,7 @@ updateIndex= (selectedIndex) =>{
          selectedButtonStyle={styles.notificationPrimaryButton}
          buttons={buttons}
          selectedTextStyle={styles.selectedTextStyle}
-        textStyle={{fontSize:14}}
+        textStyle={{fontSize:17}}
        />
       {
         
@@ -405,7 +419,7 @@ updateIndex= (selectedIndex) =>{
        
         <CheckBox size={25} wrapperStyle={{padding:15}} checked={this.state.allChecked} toggle={this.selectAllToggle}/>
         <MainText>
-          <HeadingText style={{fontSize:14}}>{MOVE_RECEIPTS_TEXT}</HeadingText>
+          <HeadingText style={{fontSize:17}}>{MOVE_RECEIPTS_TEXT}</HeadingText>
         </MainText>
         </View>
       

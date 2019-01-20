@@ -3,10 +3,12 @@ import thunk from "redux-thunk";
 import receiptReducer from './reducers/receipts';
 import uiReducer from './reducers/ui';
 import notificationReducer from './reducers/notifications';
+import userDetailsReducer from './reducers/user';
 const rootReducer = combineReducers({
     receipts: receiptReducer,
     ui:uiReducer,
-    notification:notificationReducer
+    notification:notificationReducer,
+    user:userDetailsReducer
 });
 
 let composeEnhancers = compose;

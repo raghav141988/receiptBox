@@ -296,11 +296,25 @@ errorHandler=(error)=>{
 componentDidDisappear(){
   this.setState({didScreenAppear:false});
 }
-componentDidAppear(){
-  this.setState({didScreenAppear:true});
-if(this.props.receipts===undefined ||this.props.receipts===null ||this.props.receipts.length===0){
-  this.props.onMyReceipts();
-}
+async componentDidAppear(){
+  try {
+  const user=await Auth.currentAuthenticatedUser();
+  if(user){
+    this.setState({didScreenAppear:true});
+    if(this.props.receipts===undefined ||this.props.receipts===null ||this.props.receipts.length===0){
+      this.props.onMyReceipts();
+    }
+   
+  }else {
+    this.props.onStateChange('signedOut', null);
+  }
+  }
+  catch(err)  {
+    console.log('err: ', err);
+    this.props.onStateChange('signedOut', null);
+    }
+
+
 }
 componentDidMount(){
     //FETCH MY RECEIPTS FROM DATABASE AND GET IT FROM REDUX

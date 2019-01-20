@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 import { connect } from "react-redux";
 import {View,StyleSheet,Text,FlatList,Platform} from 'react-native';
-
+import { withAuthenticator } from 'aws-amplify-react-native';
 import Icon from 'react-native-vector-icons/dist/Ionicons';
 import { List, ListItem,Button,ButtonGroup } from 'react-native-elements';
 import {deleteNotification,moveNotification,fetchUserNotifications} from '../store/actions/notificationActions'
 import { colors } from '../Utils/theme';
-
+import  {  Auth } from 'aws-amplify';
 class Notification extends Component
 {
   state = {
@@ -35,6 +35,20 @@ class Notification extends Component
 }
  move=(item)=>{
     this.props.moveNotification(item);
+}
+async componentDidAppear(){
+  try {
+    const user = await Auth.currentAuthenticatedUser();
+    if (user===undefined) {
+      this.props.onStateChange('signedOut', null);
+      
+    } 
+  } catch (err) {
+    console.log('err: ', err);
+    this.props.onStateChange('signedOut', null);
+  }
+
+  
 }
  componentDidMount(){
     this.props.onMyNotifications();
@@ -138,4 +152,4 @@ const mapStateToProps = state => {
     };
   };
 
-export default connect(mapStateToProps,mapDispatchToProps)(Notification)
+export default connect(mapStateToProps,mapDispatchToProps)(withAuthenticator(Notification))

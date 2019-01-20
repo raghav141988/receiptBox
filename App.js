@@ -28,6 +28,10 @@ import Notifications from './src/screens/Notification';
 import {colors} from './src/Utils/theme';
 import UnknownReceipts from './src/screens/UnknownReceipts';
 import MyAccount from './src/screens/MyAccount';
+import NotificationSettings from './src/screens/NotificationSettings';
+import AboutApp from './src/screens/AboutApp';
+
+
 /* ALL SCREEN IMPORTS END */
  const store = configureStore();
 
@@ -88,13 +92,18 @@ Navigation.registerComponentWithRedux(
   store
 );
 
-Navigation.registerComponentWithRedux(
+Navigation.registerComponent(
   "receiptManager.notification-settings-screen",
-  () => UnknownReceipts,
+  () => NotificationSettings,
   
-  Provider,
-  store
 );
+
+Navigation.registerComponent(
+  "receiptManager.aboutapp-screen",
+  () => AboutApp,
+  
+);
+
 
 
 Promise.all([

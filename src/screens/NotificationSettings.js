@@ -1,60 +1,113 @@
-import React, { Component } from 'react'
-import { connect } from "react-redux";
-import {View,StyleSheet,Text} from 'react-native';
+import React,{Component} from "react";
+import { Image,View,Text, StyleSheet, Dimensions} from "react-native";
+import Switch from '../components/Switch';
 
-class NotificationSettings extends React.Component
+import { colors } from '../Utils/theme';
+import {Navigation} from 'react-native-navigation';
+ import HeadingText from '../components/HeadingText';
+
+class NotificationSettings extends Component
 {
-    render(){
-        return (<View style={styles.container}>
-         <Text>This is my notifcation settings screen</Text></View>)
+
+    state={
+      notificationSettings:{
+      showPushNotifications:false,
+      alertIncomingReceipt:false,
+      alertUnKnownEmail:false,
+      alertExpiringReceipts:false,
+      alertUnknwonRcptExpiring:false
+      }
     }
-}
-
-export const styles =StyleSheet.create({
-container:{
-    flex:1
-}
-});
-
-const mapStateToProps = state => {
-    return {
-     
-    };
-  };
-  
-  const mapDispatchToProps = dispatch => {
-    return {
-     
-    };
-  };
-
-export default connect(mapStateToProps,mapDispatchToProps)(import React, { Component } from 'react'
-import { connect } from "react-redux";
-import {View,StyleSheet} from 'react-native';
-
-class Notification extends React.Component
-{
-    render(){
-        return (<View style={styles.container}></View>)
+    componentDidAppear(){
+      this.setState({
+        notificationSettings:{
+        showPushNotifications:this.props.showPushNotifications,
+        alertIncomingReceipt:this.props.alertIncomingReceipt,
+        alertUnKnownEmail:this.props.alertUnKnownEmail,
+        alertExpiringReceipts:this.props.alertExpiringReceipts,
+        alertUnknwonRcptExpiring:this.props.alertUnknwonRcptExpiring
+        }
+      })
     }
-}
-
-export const styles =StyleSheet.create({
-container:{
-    flex:1
-}
-});
-
-const mapStateToProps = state => {
-    return {
+    constructor(props) {
+      super(props);
+      
+      Navigation.events().bindComponent(this);
      
-    };
-  };
-  
-  const mapDispatchToProps = dispatch => {
-    return {
-     
-    };
-  };
+    }
+    
 
-export default connect(mapStateToProps,mapDispatchToProps)(NotificationSettings)
+    onSwitchToggle=(key)=>{
+     
+      
+     const notificationSetting={
+       ...this.state.notificationSettings,
+       [key]:!this.state.notificationSettings[key]
+     }
+
+     this.setState(prevState=>{
+      return {
+       
+        notificationSettings:{
+          ...prevState.notificationSettings,
+          [key]:!prevState.notificationSettings[key]
+        }
+       
+      }
+    });
+
+      this.props.onUpdateNotification(notificationSetting);
+    }
+    render() {
+      return (
+        <View style={styles.contatiner}>
+          <Switch
+          label="Allow Push Notiifications"
+          value={this.state.notificationSettings.showPushNotifications}
+          onValueChange={()=>this.onSwitchToggle('showPushNotifications')}
+          />
+          <View style={styles.notificationLabelContainer}>
+            <HeadingText style={{fontWeight:'bold',paddingLeft:10}}>
+             Notifications from Receipt Box
+            </HeadingText>
+          </View>
+          <Switch
+          label="New Email Receipt is received"
+          value={this.state.notificationSettings.alertIncomingReceipt}
+          onValueChange={()=>this.onSwitchToggle('alertIncomingReceipt')}
+          />
+          <Switch
+          label="non categorized Email is received"
+          value={this.state.notificationSettings.alertUnKnownEmail}
+          onValueChange={()=>this.onSwitchToggle('alertUnKnownEmail')}
+          />
+          <Switch
+          label="Email receipt is expiring"
+          value={this.state.notificationSettings.alertExpiringReceipts}
+          onValueChange={()=>this.onSwitchToggle('alertExpiringReceipts')}
+          />
+          <Switch
+          label="non categorized email is expiring"
+          value={this.state.notificationSettings.alertUnknwonRcptExpiring}
+          onValueChange={()=>this.onSwitchToggle('alertUnknwonRcptExpiring')}
+          />
+        </View>
+      )
+    }
+
+}
+const styles=StyleSheet.create({
+    container:{
+      flex:1,
+      backgroundColor: '#efefef'
+    },
+    notificationLabelContainer:{
+      marginTop:10,
+      marginBottom:10,
+      height:40,
+      backgroundColor:colors.mediumGray,
+     // alignItems:"center",
+      justifyContent:"center"
+    }
+})
+export default NotificationSettings;

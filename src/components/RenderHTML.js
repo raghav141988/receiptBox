@@ -52,12 +52,13 @@ const renderHTML=(props)=>{
     }
 const styles = StyleSheet.create({
     addImageContainer: {
-        width: width,
-        marginTop:5,
+       // width: width,
+        margin:15,
+       // marginTop:5,
         height: 0.5*height,
-        backgroundColor: colors.lightGray,
-        borderColor: colors.mediumGray,
-        borderWidth: 1.5,
+       // backgroundColor: colors.lightGray,
+        //borderColor: colors.mediumGray,
+       // borderWidth: 1.5,
        
        // borderRadius: 60,
         alignSelf: 'center',
@@ -70,7 +71,9 @@ const styles = StyleSheet.create({
       
        // alignItems: 'left',
       
-       width:Dimensions.get('window').width
+       width:Dimensions.get('window').width,
+       padding:0,
+       height:.8*height
     },
     viwerStyle:{
         //width:'100%',
