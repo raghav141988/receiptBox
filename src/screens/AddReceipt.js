@@ -301,7 +301,7 @@ return this.state.showPicker?
         >
        <Picker
       
-       mode='dropdown'
+       mode='dialog'
 selectedValue={this.state.input.category}
 
 onValueChange={(itemValue, itemIndex) => this.updateInput('category', itemValue)}>

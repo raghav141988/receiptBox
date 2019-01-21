@@ -3,7 +3,22 @@ const app = require('./app');
 
 const server = awsServerlessExpress.createServer(app);
 
-exports.handler = (event, context) => {
+exports.handler = async (event, context,callback) => {
   console.log(`EVENT: ${JSON.stringify(event)}`);
-  awsServerlessExpress.proxy(server, event, context);
+  context.callbackWaitsForEmptyEventLoop = false;
+context.succeed = (response) => {
+  console.log('is context done called?');
+  console.log(response);
+  if(response!==undefined){
+   console.log('sending API gateway response');
+  callback(null, response);
+  }
+    };
+
+
+  //context.callbackWaitsForEmptyEventLoop = false;
+  
+  const serverResponse= await awsServerlessExpress.proxy(server, event,context, 'PROMISE').promise;
+context.succeed(serverResponse);
+//context.succeed(srverResponse);
 };

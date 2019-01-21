@@ -96,7 +96,7 @@ app.post('/moveReceipts', async function (req, res) {
             console.log(s3copyResponse);
 
             const titleCat = receipt.title + "-" + receipt.category;
-            const titleCatKey = 'title-category';
+            const titleCatKey = 'title_category';
             const dbRowData = {
                 ...receipt,
                  isLatestReceipt:false,

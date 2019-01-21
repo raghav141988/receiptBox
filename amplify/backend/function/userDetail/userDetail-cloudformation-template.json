@@ -27,7 +27,7 @@
 				"Timeout": "25",
 				"Code": {
 					"S3Bucket": "eceiptanager-20181201161718-deployment",
-					"S3Key": "amplify-builds/userDetail-1547950897-latest-build.zip"
+					"S3Key": "amplify-builds/userDetail-1548089148-latest-build.zip"
 				}
 			}
 		},

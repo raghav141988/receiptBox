@@ -11,7 +11,7 @@ var bodyParser = require('body-parser')
 var express = require('express')
 const uuid = require('node-uuid');
 AWS.config.update({ region: process.env.TABLE_REGION });
-
+const async = require('async');
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 let tableName = "Receipts";
@@ -149,7 +149,7 @@ app.put(path, function(req, res) {
     if(req.body['createdDate']===null ||req.body['createdDate']===undefined){
     req.body['createdDate'] = ''+new Date();
     }
-    req.body['title-category']= req.body['title']+'-'+req.body['category']
+    req.body['title_category']= req.body['title']+'-'+req.body['category']
   }
 
   let putItemParams = {
@@ -190,6 +190,77 @@ app.post(path, function(req, res) {
     }
   });
 });
+
+
+/************************************
+* HTTP post method for pulk updating object *
+*************************************/
+
+app.post(path+"/bulk",async function(req, res) {
+  
+  if (userIdPresent) {
+    const userSub = req.apiGateway.event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1]
+    const userId=req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH;
+
+    req.body['userSub'] = userId || UNAUTH;
+  }
+
+const receipts=req.body['receipts'];
+let succededReceipts=[];
+let failedReceipts=[];
+
+for (var i = 0; i < receipts.length; i++) {
+    const receipt = req.body.receipts[i];
+    //FOR EACH RECEIPT create an update statement
+    const titleCategory= receipt.title+'_'+req.body['category']
+    let putItemParams = {
+      TableName: tableName,
+     Key:{
+      'userSub':req.body['userSub'],
+      'receiptKey':receipt.receiptKey,
+     },
+     UpdateExpression:"set category = :cat,title_category = :titleCat",
+  
+    ExpressionAttributeValues:{
+      ":cat":req.body['category'],
+      ":titleCat":titleCategory
+     
+  },
+  ReturnValues:"UPDATED_NEW"
+  }
+  console.log('updatable record**');
+  console.log(putItemParams);
+   try{
+    console.log('before update');
+   const data= await dynamodb.update(putItemParams).promise();
+   console.log('after update successful');
+      console.log(data);
+      receipt['category']=req.body['category'];
+      receipt['title_category']=titleCategory;
+      succededReceipts.push(receipt);
+   }catch(err){
+    console.log('error in updating DB');
+    console.log(err);
+  failedReceipts.push(receipt);
+
+   }
+    
+}
+  const finalResponse ={
+    succededReceipts:succededReceipts,
+    failedReceipts:failedReceipts
+  }
+  let message="post call succeed!";
+  if(succededReceipts.length==0){
+    message="Post call failed!";
+  }
+  else if(failedReceipts.length>0){
+    message="Post call partially succeeded!";
+  }
+  res.json({success: message, url: req.url, data: finalResponse})
+
+});
+
 
 /**************************************
 * HTTP remove method to delete object *

@@ -11,50 +11,101 @@ class NotificationSettings extends Component
 
     state={
       notificationSettings:{
-      showPushNotifications:false,
-      alertIncomingReceipt:false,
-      alertUnKnownEmail:false,
-      alertExpiringReceipts:false,
-      alertUnknwonRcptExpiring:false
-      }
+        showPushNotifications:false,
+        alertIncomingReceipt:false,
+        alertUnKnownEmail:false,
+        alertExpiringReceipts:false,
+        alertUnknwonRcptExpiring:false
     }
+  }
+
     componentDidAppear(){
-      this.setState({
-        notificationSettings:{
-        showPushNotifications:this.props.showPushNotifications,
-        alertIncomingReceipt:this.props.alertIncomingReceipt,
-        alertUnKnownEmail:this.props.alertUnKnownEmail,
-        alertExpiringReceipts:this.props.alertExpiringReceipts,
-        alertUnknwonRcptExpiring:this.props.alertUnknwonRcptExpiring
-        }
-      })
+      
     }
+    
     constructor(props) {
       super(props);
       
+
       Navigation.events().bindComponent(this);
      
+    }
+    componentDidMount() {
+      this.setState({
+        notificationSettings:{
+        showPushNotifications:this.props.notificationSettings.showPushNotifications,
+        alertIncomingReceipt:this.props.notificationSettings.alertIncomingReceipt,
+        alertUnKnownEmail:this.props.notificationSettings.alertUnKnownEmail,
+        alertExpiringReceipts:this.props.notificationSettings.alertExpiringReceipts,
+        alertUnknwonRcptExpiring:this.props.notificationSettings.alertUnknwonRcptExpiring
+        }
+      });
     }
     
 
     onSwitchToggle=(key)=>{
-     
-      
-     const notificationSetting={
-       ...this.state.notificationSettings,
-       [key]:!this.state.notificationSettings[key]
+     let enablePush={
+      showPushNotifications:this.state.notificationSettings['showPushNotifications']
      }
+      if(!this.state.notificationSettings[key]){
+        enablePush={
+          showPushNotifications:true
+         }
+      }
+
+      let notificationSetting={
+        ...this.state.notificationSettings,
+        ...enablePush,
+        [key]:!this.state.notificationSettings[key],
+       
+      }
+
+      if(key==='showPushNotifications'){
+        if(this.state.notificationSettings[key]){
+          notificationSetting={
+            showPushNotifications:false,
+            alertIncomingReceipt:false,
+            alertUnKnownEmail:false,
+            alertExpiringReceipts:false,
+            alertUnknwonRcptExpiring:false
+          }
+          this.setState({
+            notificationSettings:{
+           ...notificationSetting
+            }
+          });
+        }
+        else {
+          notificationSetting={
+          showPushNotifications:this.props.notificationSettings.showPushNotifications,
+          alertIncomingReceipt:this.props.notificationSettings.alertIncomingReceipt,
+          alertUnKnownEmail:this.props.notificationSettings.alertUnKnownEmail,
+          alertExpiringReceipts:this.props.notificationSettings.alertExpiringReceipts,
+          alertUnknwonRcptExpiring:this.props.notificationSettings.alertUnknwonRcptExpiring
+          }
+          this.setState({
+            notificationSettings:{
+           ...notificationSetting
+            }
+          });
+        }
+      }
+      
+     else {
 
      this.setState(prevState=>{
       return {
        
         notificationSettings:{
           ...prevState.notificationSettings,
-          [key]:!prevState.notificationSettings[key]
+          [key]:!prevState.notificationSettings[key],
+          ...enablePush
         }
        
       }
+
     });
+  }
 
       this.props.onUpdateNotification(notificationSetting);
     }

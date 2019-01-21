@@ -103,7 +103,8 @@ const buttons = ['Receipts', 'Others']
       
      
       this.state = {
-        //dataSource: dataSource.cloneWithRows(data),
+        showPicker:false,
+        pickerCategory:null,
         scrollAnim,
        selectedReceipts:[],
        isChecked:[],
@@ -165,7 +166,31 @@ const buttons = ['Receipts', 'Others']
   });
     }
     
+/* GET PICKER OF CATEGORIES */
+_getPicker=()=>{
+ 
+  const categories=CATEGORIES.map((category,index)=>{
+    return (<Picker.Item key={index} label={category} value={category} />)
+   });
+  
+return this.state.showPicker?
+ (  <View
+    style={{ bottom:0,right:0, position:'absolute',height: 200, width:width,zIndex:999,backgroundColor:"#efefef" }}
+      >
+     <Picker
+    
+     mode='dialog'
+selectedValue={this.state.pickerCategory}
 
+onValueChange={(itemValue, itemIndex) => this.updateCategory( itemValue)}>
+{
+categories
+}
+
+</Picker>
+</View>):null;
+
+}
     signOut=async ()=>{
         Auth.signOut()
         .then(() => {
@@ -450,11 +475,30 @@ updateIndex= (selectedIndex) =>{
           refreshing={this.state.isFetching}
          onLongPress={()=>{}}
         // ListHeaderComponent={this._getHeaderComponent}
-         renderItem={(info) => (
+         renderItem={(info) =>{
+          const swipeoutBtns = [
+            {
+              text: 'Move',
+              backgroundColor:colors.primary,
+              onPress: () => {console.log('move pressed');
+            console.log(info.item)
+            }
+            },
+            {
+                text: 'Delete',
+                backgroundColor:colors.accentColor,
+                onPress: () => {console.log('delete pressed');
+                console.log(info.item)
+              }
+              },
+              
+          ]; 
+          
+          return (
           <ReceiptItem
           receiptItem={info.item}
           isChecked={this.state.isChecked[info.index]}
-         
+          swipeoutBtns={swipeoutBtns}
           canShowCheckbox={true}
          
           receiptImage={info.item.image}
@@ -462,7 +506,7 @@ updateIndex= (selectedIndex) =>{
           onItemPressed={() => this.onItemSelected(info.item)}
         />
          )}
-
+          }
          
           scrollEventThrottle={1}
          

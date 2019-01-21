@@ -24,7 +24,7 @@ import UserProfileComponent from '../components/UserProfileComponent';
 import NotificationSettings from './NotificationSettings';
 import AboutApp from './AboutApp';
 import {updateNotificationSettings} from '../store/actions/userDetailsAction';
-
+import LoginScreen from './LoginScreen';
 import {
     Navigation
 } from "react-native-navigation";
@@ -88,16 +88,20 @@ loadUserProfile = () => {
 
 }
 onUpdateNotification=(notificationSetting)=>{
+    
 this.props.updateNotificationSettings(notificationSetting);
 }
 loadNotificationSettings = () => {
     this.pushScreen('receiptManager.notification-settings-screen', 'Notification Settings', {
-        ...this.props.userDBDetails.notificationSettings,
+        notificationSettings:{...this.props.userDBDetails.notificationSettings},
         onUpdateNotification:this.onUpdateNotification
     }
-        )
+  );
 }
 loadAboutApp = () => {
+    this.pushScreen('receiptManager.aboutapp-screen', 'About ReceiptBox', {
+    }
+  );
 
 }
 shareApp = () => {
@@ -106,11 +110,22 @@ shareApp = () => {
 logout = () => {
     Auth.signOut()
         .then(() => {
-            this.props.onStateChange('signedOut', null);
+           this.goBackToLogin();
         })
         .catch(err => {
             console.log('err: ', err)
         })
+}
+goBackToLogin=()=>{
+  //  Navigation.events().registerAppLaunchedListener(() => {
+        Navigation.setRoot({
+          root: {
+            component: {
+              name: "receiptManager.LoginScreen"
+            }
+          }
+        });
+     // });
 }
 async componentDidAppear() {
     if (this.state.user === null) {
@@ -242,4 +257,4 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withAuthenticator(MyAccount))
+export default connect(mapStateToProps, mapDispatchToProps)(MyAccount)

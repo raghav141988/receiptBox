@@ -10,7 +10,8 @@ class UserProfileComponent extends Component
 
     }
     render() {
-        const avatarDetails =getAvatarPrefix("raghu141988");
+      //  console.log(this.props.cognitoUser);
+        const avatarDetails =getAvatarPrefix(this.props.cognitoUser?this.props.cognitoUser.username:"UNKNOWN");
 
       return (
         <View >
@@ -24,11 +25,11 @@ class UserProfileComponent extends Component
   
   rounded
  // onPress={() => console.log("Works!")}
-  activeOpacity={0.7}
+  activeOpacity={0.9}
 />
-<Text style={styles.userLabel} >raghu141988
+<Text style={styles.userLabel} >{this.props.cognitoUser?this.props.cognitoUser.username:""}
 </Text>
-<Text style={styles.userLabel} >raghavendra.pes@gmail.com
+<Text style={styles.userLabel} >{this.props.cognitoUser?this.props.cognitoUser.attributes.email:""}
 </Text>
 </View>
 

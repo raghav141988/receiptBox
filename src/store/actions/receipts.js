@@ -3,6 +3,7 @@ import { ADD_DEVICE, STORE_RECEIPT,DELETE_RECEIPTS,FETCH_LATEST_RECEIPTS,
     SHARE_RECEIPT,DOWNLOAD_RECEIPT,MARK_INBOX_SELECTION,FETCH_UNKNOWN_RECEIPTS,RECEIPT_STORE_SUCCESS,NOTIFICATION_OPENED,
     STORE_DEVICE_TOKEN,RECEIPT_DETAIL_RESET,REMOVE_RECEIPTS,STORE_LATEST_RECEIPTS,STORE_UNKNOWN_RECEIPTS,STORE_MY_RECEIPTS,ADD_UPDATE_RECEIPT_SUCCESS, RECEIPT_DETAIL_SUCCESS, UNKNOWN_TO_MY_RECEIPTS_SUCCESS,MOVE_TO_MY_RECEIPTS_SUCCESS,
     STORE_NOTIFICATION,
+    UPDATE_CATEGORIZED_RECEIPTS,
     FETCH_NOTIFICATIONS
 } from './actionTypes';
 import Constants from '../../Utils/constants';
@@ -513,8 +514,51 @@ export const fetchUnknownReceipts = () => {
     }
 };
 
+export const categorizeReceipts=(receipts,category)=>{
+    return async dispatch=>{
+        dispatch(uiStartLoading());
+        console.log(receipts);
+        console.log(category);
+      
 
+           //THIS IS WHERE WE CALL API TO update THE RECEIPT categ
+           const apiName = 'receiptsAPI';
+           const path = '/receipts/bulk';
+        const data = {
+       
+          body: {
+              receipts:receipts,
+              category:category
+            }
+        }
+        try {
+           
+          const response= await API.post(apiName, path, data);
+        
+         console.log(response);
 
+        //UPDATE RECEIPTS WITH NEW CATEGORY
+        if(response.data.succededReceipts){
+            dispatch(updateCategorizedRepors(response.data.succededReceipts));
+        }
+        
+          dispatch(uiStopLoading());
+         
+           }
+           catch(err){
+            console.log('Storing receipt failed'+err);
+           }
+        
+    }
+}
+export const  updateCategorizedRepors =(receipts)=>{
+    return {
+        type:UPDATE_CATEGORIZED_RECEIPTS,
+       
+        receipts:receipts,
+       
+    }
+}
 export const removeReceipts =(receipts,level,isReceiptFolder)=>{
    
     return {

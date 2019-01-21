@@ -91,8 +91,16 @@ export const showAddReceiptFromCamera=(cameraResp)=>{
         options: {
           
           topBar: {
+         
      // hideOnScroll: true,
-            
+     visible:true,
+     animate: true, 
+     buttonColor: colors.buttonEnabledColor,
+     background:{
+       color: colors.primary,
+      // translucent: true,
+      
+     },
             rightButtons:[
               {
                 id: 'save',

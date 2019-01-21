@@ -9,15 +9,21 @@ import {colors} from '../Utils/theme';
 import ItalicHeadingText from './ItalicHeading';
 import Icon from 'react-native-vector-icons/dist/Ionicons';
 import {getAvatarPrefix} from '../Utils/avatarPrefix';
-
+import Swipeout from 'react-native-swipeout';
 import Moment from 'react-moment';
 const receiptItem = props =>{ 
+
  const avatarDetails =getAvatarPrefix(props.receiptItem.category);
 
     return (
-        <ListItem titleStyle={styles.receiptTextStyle}
-        bottomDivider
-        leftAvatar={(<Avatar
+        <Swipeout 
+        autoClose
+       
+        right={props.swipeoutBtns}>
+        <ListItem
+        containerStyle={{padding:5, paddingLeft:10,paddingRight:10}}
+          
+          leftAvatar={(<Avatar
   size="medium"
   title={avatarDetails.text}
   placeholderStyle={{backgroundColor:avatarDetails.color}}
@@ -27,9 +33,8 @@ const receiptItem = props =>{
   activeOpacity={0.7}
 />)
         }
-        onLongPress={props.onLongPress}
-        
-        leftElement={
+
+         leftElement={
             props.canShowCheckbox?
                   (<CheckBox size={25} wrapperStyle={styles.wrapper} containerStyle={styles.checkBoxContainer}
                             checkedColor={colors.accentColor}
@@ -38,84 +43,46 @@ const receiptItem = props =>{
                 />)
                     :null
         }
-        onPress={props.onItemPressed}
-        title={
-            (<MainText>
-           <HeadingText>{props.receiptItem.title}</HeadingText>
-        </MainText>)
-           }
-        subtitle={(<View style={styles.dateCategoryStyle}>
+         title={
+             <ListItem titleStyle={styles.receiptTextStyle}
+             bottomDivider
+             chevron
+             containerStyle={{padding:2}}
+             
+             onLongPress={props.onLongPress}
+             
             
-            <MainText>
-              <HeadingText style={{ fontSize: 14, color:'#86939e'}}>{props.receiptItem.category}</HeadingText>
-            </MainText>
-           
-          
-            <MainText >
-              <ItalicHeadingText style={{ fontSize: 12, color:'#86939e'}} >
-              <Moment format="DD-MMM-YYYY" element={Text} >{props.receiptItem.createdDate}</Moment>
-              </ItalicHeadingText>
-            </MainText>
-           
-           
-            </View>)}
-        //leftAvatar={{ source: { uri: item.avatar_url } }}
-      />
+             onPress={props.onItemPressed}
+             title={
+                 (<MainText>
+                <HeadingText>{props.receiptItem.title}</HeadingText>
+             </MainText>)
+                }
+             subtitle={(<View style={styles.dateCategoryStyle}>
+                 
+                 <MainText>
+                   <HeadingText style={{ fontSize: 14, color:'#86939e'}}>{props.receiptItem.category}</HeadingText>
+                 </MainText>
+                
+               
+                 <MainText >
+                   <ItalicHeadingText style={{ fontSize: 12, color:'#86939e'}} >
+                   <Moment format="DD-MMM-YYYY" element={Text} >{props.receiptItem.createdDate}</Moment>
+                   </ItalicHeadingText>
+                 </MainText>
+                
+                
+                 </View>)}
+             //leftAvatar={{ source: { uri: item.avatar_url } }}
+           />
+         }
+
+        />
+        </Swipeout>
 
     )
 
 
-//     return (
-//         <Card wrapperStyle={{margin:0,padding:0}} containerStyle={styles.cardContainer} >
-//         <View style={styles.container}>
-//     {props.canShowCheckbox?
-//   <CheckBox size={25} wrapperStyle={styles.wrapper} containerStyle={styles.checkBoxContainer}
-//             checkedColor={colors.accentColor}
-//   checked={props.isChecked}
-//   onPress={()=>props.onToggleCheckBox()}
-// />
-//     :null}
-       
-//         <TouchableOpacity style={{flex:1}} 
-//          onLongPress={props.onLongPress}
-//         onPress={props.onItemPressed}>
-       
-       
-//    {/* {checkbox} */}
-//        <View style={styles.imageAndText}>
-       
-//       <ReceiptImage contentType={props.receiptItem.contentType} />
-//       <View style={styles.cardContent}>
-
-//        <View style={styles.dateCategoryStyle}>
-//       <View style={{width:"90%"}}>
-//       <MainText>
-//           <HeadingText>{props.receiptItem.title}</HeadingText>
-//         </MainText>
-//         </View>
-//         <View style={{width:"10%"}}>
-//         <Icon name={Platform.OS === 'android' ? "md-arrow-forward" : "ios-arrow-forward"} size={20} color="#757575" />
-//         </View>
-//         </View>
-       
-        
-//       </View>
-//       </View>
-    
-
-//   </TouchableOpacity>
-    
-//   </View>
-//   </Card> 
-      
-       
-     
-      
-     
-   
-   
-  
-// );
 
 }
 

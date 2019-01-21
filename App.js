@@ -9,7 +9,7 @@
 import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View,Button} from 'react-native';
 import {configureAmplify} from './AwsConfig';
-import { withAuthenticator } from 'aws-amplify-react-native';
+import { withAuthenticator } from './src/screens/Authentication/Auth/index';
 import Amplify, { API, Auth,Storage } from 'aws-amplify';
 import amplify from './src/aws-exports';
 import { PushNotificationIOS } from 'react-native';
@@ -30,7 +30,8 @@ import UnknownReceipts from './src/screens/UnknownReceipts';
 import MyAccount from './src/screens/MyAccount';
 import NotificationSettings from './src/screens/NotificationSettings';
 import AboutApp from './src/screens/AboutApp';
-
+import amplifyTheme from './src/screens/Authentication/AmplifyTheme';
+import LoginScreen from './src/screens/LoginScreen';
 
 /* ALL SCREEN IMPORTS END */
  const store = configureStore();
@@ -103,9 +104,13 @@ Navigation.registerComponent(
   () => AboutApp,
   
 );
+Navigation.registerComponent(
+  "receiptManager.LoginScreen",
+  () => LoginScreen,
+  
+);
 
-
-
+/*  
 Promise.all([
   Icon.getImageSource(Platform.OS==='ios'?"ios-home":"md-home" , 25),
   Icon.getImageSource(Platform.OS==='ios'?"ios-mail-open":"md-mail-open" , 25),
@@ -116,7 +121,7 @@ Promise.all([
   
 
  
-    
+  
   
 //PUSH NEW SCREENS
 Navigation.setRoot({
@@ -373,6 +378,20 @@ statusBar: {
 
 });
 
+*/
+
+
+Navigation.events().registerAppLaunchedListener(() => {
+  Navigation.setRoot({
+    root: {
+      component: {
+        name: "receiptManager.LoginScreen"
+      }
+    }
+  });
+});
+
+
  class App extends Component<Props> {
 
 
@@ -397,6 +416,10 @@ statusBar: {
 componentDidMount(){
   console.log('component did mount');
   
+}
+onStateChange=(state)=>{
+  console.log('state change called');
+  console.log(state);
 }
 
   render() {
@@ -429,5 +452,5 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
-
-export default withAuthenticator(App);
+export default App;
+//export default withAuthenticator(()=>(<App onStateChange={this.onStateChange}/>),includeGreetings = false, authenticatorComponents = [], federated = null, theme = amplifyTheme, signUpConfig = {});

@@ -10,7 +10,8 @@ import {
   UNKNOWN_TO_MY_RECEIPTS_SUCCESS,
   ADD_UPDATE_RECEIPT_SUCCESS,
   STORE_UNKNOWN_RECEIPTS,
-  MARK_INBOX_SELECTION
+  MARK_INBOX_SELECTION,
+  UPDATE_CATEGORIZED_RECEIPTS
  
 
 } from "../actions/actionTypes";
@@ -117,6 +118,11 @@ const reducer = (state = initialState, action) => {
          myReceipts:addToMyReceipts(state.myReceipts,action.receipts),
         latestReceipts:updateLatestReceipts(state.latestReceipts,action.receipts)
       }
+      case UPDATE_CATEGORIZED_RECEIPTS:
+      return {
+        ...state,
+        myReceipts:updateMyCategorizedReceipts(state.myReceipts,action.receipts),
+      }
       case UNKNOWN_TO_MY_RECEIPTS_SUCCESS:
       return {
         ...state,
@@ -142,6 +148,20 @@ export const addToMyReceipts=(myReceipts,movedReceipts)=>{
 
 }
 
+export const updateMyCategorizedReceipts=(myReceipts,receipts)=>{
+  const movedReceiptKeys=receipts.map(receipt=>{return 
+    {
+      [receipt.receiptKey]:receipt
+    })};
+ const newReceipts= myReceipts.map(receipt=>{
+     if(movedReceiptKeys[receipt.receiptKey]){
+       return movedReceiptKeys[receipt.receiptKey]
+     }else {
+       return receipt;
+     }
+  })
+return newReceipts;
+}
 export const updateLatestReceipts=(latestReceipts,movedReceipts)=>{
   const movedReceiptKeys=movedReceipts.map(receipt=>receipt.receiptKey);
   console.log(movedReceiptKeys);

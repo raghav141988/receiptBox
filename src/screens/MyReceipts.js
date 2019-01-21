@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import { Animated,Alert,StatusBar, Button,Image, Platform, StyleSheet,DatePickerIOS, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
+import { Animated,Alert,Dimensions,StatusBar, Picker,Button,Image, Platform, StyleSheet,DatePickerIOS, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
 import PushNotification from '@aws-amplify/pushnotification';
-import { withAuthenticator } from 'aws-amplify-react-native';
+
 import { PushNotificationIOS } from 'react-native';
 import Amplify, { API, Auth,Storage } from 'aws-amplify';
 import { connect } from "react-redux";
 import amplify from '../../src/aws-exports';
-import {fetchMyReceipts,deleteReceipts,resetReceiptDetail} from '../store/actions/receipts';
+import {fetchMyReceipts,deleteReceipts,resetReceiptDetail,categorizeReceipts} from '../store/actions/receipts';
 import Icon from 'react-native-vector-icons/dist/Ionicons';
 import MaterialIcon from 'react-native-vector-icons/dist/MaterialIcons'
 const STATUS_BAR_HEIGHT = Platform.select({ ios: 0, android: 0 });
@@ -17,8 +17,10 @@ import { modalOpen,resetUIState,resetNotificationData } from '../store/actions/u
 import {Navigation} from 'react-native-navigation';
 import ImagePicker from 'react-native-image-picker';
 import {colors} from '../Utils/theme';
-
+import {CATEGORIES} from '../Utils/avatarPrefix';
 const AnimatedListView = Animated.createAnimatedComponent(FlatList);
+const { width, height } = Dimensions.get('window');
+
 
 
   class MyReceipts extends Component {
@@ -30,7 +32,36 @@ const AnimatedListView = Animated.createAnimatedComponent(FlatList);
           chosenDate:newDate
       });
      }
-   
+  getCategorizeButtons=(sources)=>{
+   return [
+  
+      {
+        id: 'categorized',
+        text: 'Done'
+      },
+      {
+        id: 'cancel',
+        text: 'Cancel'
+      }
+    ]
+  }
+  getLongScreenButtons=(sources)=>{
+    return  [
+      {
+        id: 'delete',
+        icon: sources[0]
+      },
+      {
+        id: 'categorize',
+        text: 'Categorize'
+      },
+      {
+        id: 'cancel',
+        text: 'Cancel'
+      }
+    ];
+
+   }
      toggleAdvanceSearch=()=>{
        Animated.timing(                  // Animate over time
          this.state.adVanceSearchClickAnim,            // The animated value to drive
@@ -175,6 +206,8 @@ const AnimatedListView = Animated.createAnimatedComponent(FlatList);
       this.state = {
         //dataSource: dataSource.cloneWithRows(data),
         scrollAnim,
+        showPicker:false,
+        pickerCategory:null,
        selectedReceipts:[],
        isChecked:[],
        canShowCheckbox:false,
@@ -330,48 +363,56 @@ navigationButtonPressed({ buttonId }) {
     this.deleteSeletedReceipts();
   }
   else if(buttonId==='cancel'){
+    this.updateCheckedState(this.props.receipts);
     this.handleCancelSelection();
   }
+  else if(buttonId==='categorize'){
+    this.categorizeReceipts();
+  }
+  else if(buttonId==='categorized'){
+    this.handleCateogrizationComplete()
+  }
+  
   
 }
 handleCancelSelection=()=>{
   this.setState({canShowCheckbox:false});
   Navigation.mergeOptions(this.props.componentId, {
     topBar: {
+      title:{
+        text:'ReceiptBox'
+      },
       rightButtons: [
         
       ]
     }
   });
 }
-addLongPressButtons=()=>{
 
+showTopBarButtons=(buttonFunction )=>{
   Promise.all([
     Icon.getImageSource(Platform.OS === 'android' ? "md-trash" : "ios-trash", 25),
    
   ]).then(sources => {
     Navigation.mergeOptions(this.props.componentId, {
       topBar: {
+        title: {
+          text: '',
+          
+        },
         backButton: {
           color: colors.buttonEnabledColor, // For back button text
         },
         buttonColor: colors.buttonEnabledColor,
-        rightButtons: [
-          {
-            id: 'delete',
-            icon: sources[0]
-          },
-          {
-            id: 'cancel',
-            text: 'Cancel'
-          }
-        ]
+        rightButtons: buttonFunction(sources)
       }
     });
   
 });
+}
+addLongPressButtons=()=>{
 
- 
+  this.showTopBarButtons(this.getLongScreenButtons);
 
 }
 onRefresh=()=>{
@@ -415,6 +456,66 @@ addReceiptFromCamera=()=>{
     }
   });
   
+}
+updateCategory=(category)=>{
+this.setState({pickerCategory:category});
+}
+/* GET PICKER OF CATEGORIES */
+_getPicker=()=>{
+ 
+  const categories=CATEGORIES.map((category,index)=>{
+    return (<Picker.Item key={index} label={category} value={category} />)
+   });
+  
+return this.state.showPicker?
+ (  <View
+    style={{ bottom:0,right:0, position:'absolute',height: 200, width:width,zIndex:999,backgroundColor:"#efefef" }}
+      >
+     <Picker
+    
+     mode='dialog'
+selectedValue={this.state.pickerCategory}
+
+onValueChange={(itemValue, itemIndex) => this.updateCategory( itemValue)}>
+{
+categories
+}
+
+</Picker>
+</View>):null;
+
+}
+
+/* Handles the completion of categorization of receipts */
+handleCateogrizationComplete=()=>{
+  this.setState({showPicker:false});
+
+
+  let categorizableReceipts=[];
+  this.props.receipts.map((receipt,index)=>{
+    if(this.state.isChecked[index]){
+      categorizableReceipts.push(receipt);
+    }
+  
+  });
+  console.log(categorizableReceipts);
+  if(categorizableReceipts.length>0){
+    this.props.categorizeReceipts(categorizableReceipts,this.state.pickerCategory);
+  }
+  this.updateCheckedState(this.props.receipts);
+  this.handleCancelSelection();
+}
+
+/* Categorize the selected reports */
+categorizeReceipts=()=>{
+  this.setState({pickerCategory:CATEGORIES[0],
+    showPicker:true
+  });
+// CHANGE LEFT BUTTONS TO SHOW SELECT OPTION
+this.showTopBarButtons(this.getCategorizeButtons);
+
+  
+
 }
 /* Deletes the selected receipts */
 deleteSeletedReceipts =()=>{
@@ -564,6 +665,7 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
     
      barStyle="light-content"
    />
+
        {/* <Button title="sign out" onPress={this.signOut}/> */}
       <Animated.View style={styles.receiptList} >
         <AnimatedListView
@@ -574,9 +676,29 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
          refreshing={this.state.isFetching}
          extraData={this.state}
         // ListHeaderComponent={this._getHeaderComponent}
-         renderItem={(info) => (
+         renderItem={(info) =>{
+          const swipeoutBtns = [
+            {
+              text: 'Categorize',
+              backgroundColor:colors.primary,
+              onPress: () => {console.log('categorzie pressed');
+            console.log(info.item)
+            }
+            },
+            {
+                text: 'Delete',
+                backgroundColor:colors.accentColor,
+                onPress: () => {console.log('delete pressed');
+                console.log(info.item)
+              }
+              },
+              
+          ];
+
+          return (
           <ReceiptItem
           receiptItem={info.item}
+          swipeoutBtns={swipeoutBtns}
           canShowCheckbox={this.state.canShowCheckbox}
           isChecked={this.state.isChecked[info.index]}
           canMultiSelect={this.state.canMultiSelect}
@@ -587,8 +709,7 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
           onItemPressed={() => this.onItemSelected(info.item)}
         />
          )}
-
-         
+          }
           scrollEventThrottle={1}
          
           
@@ -610,7 +731,7 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
         style={styles.actionButton} buttonColor={colors.primary}>
           <ActionButton.Item buttonColor={colors.primary} title="Take Receipt Picture" onPress={() => {
            // this.props.openModal();
-            this.addReceiptFromCamera(null,false);
+            this.addReceiptFromCamera();
           
           }}>
             <Icon    name={Platform.OS === 'android' ? 'md-camera' : 'ios-camera'} style={styles.actionButtonIcon} />
@@ -626,6 +747,7 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
             <Icon name="md-trash" style={styles.actionButtonIcon} />
           </ActionButton.Item> */}
         </ActionButton>
+        {this._getPicker()}
       </View>
     );
   }    
@@ -641,7 +763,7 @@ const mapStateToProps = state => {
   const mapDispatchToProps = dispatch => {
     return {
       resetUIState:()=>dispatch(resetUIState()),
-
+      categorizeReceipts:(receipts,category)=>dispatch(categorizeReceipts(receipts,category)),
       resetReceiptDetail:()=>dispatch(resetReceiptDetail()),
       onMyReceipts: () => dispatch(fetchMyReceipts()),
       deleteReceipts:(receipts)=>dispatch(deleteReceipts(receipts,false)),
@@ -762,4 +884,4 @@ const mapStateToProps = state => {
     }
   });
 
-export default connect(mapStateToProps, mapDispatchToProps)(withAuthenticator(MyReceipts))
+export default connect(mapStateToProps, mapDispatchToProps)(MyReceipts)

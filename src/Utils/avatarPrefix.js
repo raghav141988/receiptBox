@@ -1,4 +1,4 @@
-
+export const PLEASE_SELECT_CATEGORY='Please Select';
 export const FOOD_CATEGORY='Food';
 export const BILLS_CATEGORY='Bills and utilities';
 export const AUTO_TRANSPORT_CATEGORY='Auto and Transport';
@@ -16,7 +16,8 @@ export const SHOWS_AND_MOVIES_CATEGORY='Shows And Movies';
 export const MISCELLANEOUS_CATEGORY='Miscellaneous';
 
 export const CATEGORIES =
-     [FOOD_CATEGORY,
+     [
+         FOOD_CATEGORY,
         BILLS_CATEGORY,
         AUTO_TRANSPORT_CATEGORY,
         INTERNET_CATEGORY,
