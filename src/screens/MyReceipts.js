@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Animated,Alert,Dimensions,StatusBar, Picker,Button,Image, Platform, StyleSheet,DatePickerIOS, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
+import { Animated,ActivityIndicator,Alert,Dimensions,StatusBar, Picker,Button,Image, Platform, StyleSheet,DatePickerIOS, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
 import PushNotification from '@aws-amplify/pushnotification';
 
 import { PushNotificationIOS } from 'react-native';
@@ -210,6 +210,8 @@ const { width, height } = Dimensions.get('window');
         pickerCategory:null,
        selectedReceipts:[],
        isChecked:[],
+       swipedReceipt:null,  
+       
        canShowCheckbox:false,
         adVanceSearchClickAnim:new Animated.Value(-300),
         searchIconRotateAnim:new Animated.Value(0),
@@ -234,6 +236,9 @@ const { width, height } = Dimensions.get('window');
     /* Handle the selection of the receipt */
     onItemSelected=(receipt)=>{
       this.props.resetReceiptDetail();
+      //RESET PICKER
+      this.setState({showPicker:false});
+
       this.updateCheckedState(this.props.receipts);
 
       this.handleCancelSelection();
@@ -256,9 +261,17 @@ const { width, height } = Dimensions.get('window');
           
         },
         options: {
+          statusBar: {
+            visible: false,
+            backgroundColor:colors.primary,
+            drawBehind: false,
+                        style:  'dark',
+                        visible: false,
+          },
           topBar: {
            // hideOnScroll: true,
             backButton: {
+              title:'',
               color: colors.buttonEnabledColor, // For back button text
             },
             buttonColor: colors.buttonEnabledColor,
@@ -274,15 +287,18 @@ const { width, height } = Dimensions.get('window');
               {
                 id: 'edit',
                
-                icon: sources[0]
+                icon: sources[0],
+                color: colors.buttonEnabledColor, 
              },
              {
               id: 'share',
-              icon: sources[2]
+              icon: sources[2],
+              color: colors.buttonEnabledColor, 
            },
              {
                 id: 'delete',
-                icon: sources[1]
+                icon: sources[1],
+                color: colors.buttonEnabledColor, 
              }
             ]
           }
@@ -339,12 +355,12 @@ async componentDidAppear(){
     }
    
   }else {
-    this.props.onStateChange('signedOut', null);
+    //this.props.onStateChange('signedOut', null);
   }
   }
   catch(err)  {
     console.log('err: ', err);
-    this.props.onStateChange('signedOut', null);
+   // this.props.onStateChange('signedOut', null);
     }
 
 
@@ -364,6 +380,10 @@ navigationButtonPressed({ buttonId }) {
   }
   else if(buttonId==='cancel'){
     this.updateCheckedState(this.props.receipts);
+    this.setState({swipedReceipt:null,
+    showPicker:false
+    });
+    
     this.handleCancelSelection();
   }
   else if(buttonId==='categorize'){
@@ -499,9 +519,16 @@ handleCateogrizationComplete=()=>{
   
   });
   console.log(categorizableReceipts);
+  if(categorizableReceipts.length==0){
+    //VERIFY ITS FROM SWIPE
+    this.state.swipedReceipt!==null && this.state.swipedReceipt!==undefined ?categorizableReceipts.push({...this.state.swipedReceipt}):null;
+
+
+  }
   if(categorizableReceipts.length>0){
     this.props.categorizeReceipts(categorizableReceipts,this.state.pickerCategory);
   }
+  this.setState({swipedReceipt:null});
   this.updateCheckedState(this.props.receipts);
   this.handleCancelSelection();
 }
@@ -518,7 +545,7 @@ this.showTopBarButtons(this.getCategorizeButtons);
 
 }
 /* Deletes the selected receipts */
-deleteSeletedReceipts =()=>{
+deleteSeletedReceipts =(swipedReceipt)=>{
   let deletableReceipts=[];
 this.props.receipts.map((receipt,index)=>{
   if(this.state.isChecked[index]){
@@ -527,9 +554,16 @@ this.props.receipts.map((receipt,index)=>{
 
 });
 console.log(deletableReceipts);
+if(deletableReceipts.length==0){
+  //VERIFY ITS FROM SWIPE
+  swipedReceipt!==null && swipedReceipt!==undefined ?deletableReceipts.push({...swipedReceipt}):null;
+
+
+}
 if(deletableReceipts.length>0){
   this.props.deleteReceipts(deletableReceipts);
 }
+this.setState({swipedReceipt:null});
 }
 onToggleCheckBox=(index)=>{
   
@@ -661,10 +695,7 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
     return (
       
       <View style={styles.fill}>
-      <StatusBar
-    
-     barStyle="light-content"
-   />
+     {Platform.OS==='ios'?<StatusBar barStyle="light-content" />:null}
 
        {/* <Button title="sign out" onPress={this.signOut}/> */}
       <Animated.View style={styles.receiptList} >
@@ -681,15 +712,18 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
             {
               text: 'Categorize',
               backgroundColor:colors.primary,
-              onPress: () => {console.log('categorzie pressed');
-            console.log(info.item)
+              onPress: () => {
+                this.setState({swipedReceipt:info.item})
+                this.categorizeReceipts();
+           // console.log(info.item)
             }
             },
             {
                 text: 'Delete',
                 backgroundColor:colors.accentColor,
-                onPress: () => {console.log('delete pressed');
-                console.log(info.item)
+                onPress: () => {
+                  this.setState({swipedReceipt:info.item})
+                  this.deleteSeletedReceipts(info.item);
               }
               },
               
@@ -748,6 +782,11 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
           </ActionButton.Item> */}
         </ActionButton>
         {this._getPicker()}
+        {this.props.isLoading?<View style={styles.loading}>
+      <ActivityIndicator size='large' />
+    </View>:null
+        }
+
       </View>
     );
   }    
@@ -756,7 +795,8 @@ const mapStateToProps = state => {
     return {
       receipts: state.receipts.myReceipts,
       isReceiptDeleted:state.ui.isReceiptDeleted,
-      notification:state.ui.notification
+      notification:state.ui.notification,
+      isLoading:state.ui.isLoading
     };
   };
   
@@ -776,6 +816,15 @@ const mapStateToProps = state => {
   const styles = StyleSheet.create({
     fill: {
       flex: 1,
+    },
+    loading: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
+      alignItems: 'center',
+      justifyContent: 'center'
     },
     actionButton:{
       shadowOffset: {

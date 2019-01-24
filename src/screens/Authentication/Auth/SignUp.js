@@ -12,13 +12,14 @@
  */
 
 import React from 'react';
-import { View, Text, TextInput, Button, TouchableWithoutFeedback, Keyboard, Picker, ScrollView } from 'react-native';
+import { View, Text,Platform, TextInput, Button, TouchableWithoutFeedback, Keyboard, Picker, ScrollView } from 'react-native';
 import { Auth, I18n, Logger } from 'aws-amplify';
 import { FormField, PhoneField, LinkCell, Header, ErrorRow, AmplifyButton } from '../AmplifyUI';
 import AuthPiece from './AuthPiece';
 import defaultSignUpFields from './common/default-sign-in-fields';
-
+import Icon from 'react-native-vector-icons/dist/Ionicons';
 const logger = new Logger('SignUp');
+import {colors} from '../../../Utils/theme';
 export default class SignUp extends AuthPiece {
     constructor(props) {
         super(props);
@@ -176,7 +177,10 @@ export default class SignUp extends AuthPiece {
                     View,
                     { style: theme.sectionBody },
                     this.signUpFields.map(field => {
-                        return field.key !== 'phone_number' ? React.createElement(FormField, {
+                        return field.key !== 'phone_number' ? 
+                        React.createElement(View,{style:theme.formFieldElement},
+                            React.createElement(Icon,{size:24, color:colors.primary,name:Platform.OS==='ios'?'ios-'+field.icon+'':'md-'+field.icon+''}),
+                        React.createElement(FormField, {
                             key: field.key,
                             theme: theme,
                             type: field.type,
@@ -190,13 +194,13 @@ export default class SignUp extends AuthPiece {
                             placeholder: I18n.get(field.placeholder),
                            // placeholderTextColor:'white',
                             required: field.required
-                        }) : React.createElement(PhoneField, {
+                        })) : React.createElement(PhoneField, {
                             theme: theme,
                             key: field.key,
                             onChangeText: text => this.setState({ phone_number: text }),
                            // label: I18n.get(field.label),
                             placeholder: I18n.get(field.placeholder),
-                          //  placeholderTextColor:'white',
+                           placeholderTextColor:colors.primary,
                             keyboardType: 'phone-pad',
                             required: field.required
                         });

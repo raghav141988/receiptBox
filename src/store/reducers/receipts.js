@@ -149,10 +149,14 @@ export const addToMyReceipts=(myReceipts,movedReceipts)=>{
 }
 
 export const updateMyCategorizedReceipts=(myReceipts,receipts)=>{
-  const movedReceiptKeys=receipts.map(receipt=>{return 
-    {
-      [receipt.receiptKey]:receipt
-    })};
+  
+  const movedReceiptKeys = 
+  receipts.reduce((obj, receipt) => {
+    obj[receipt.receiptKey] = receipt
+    return obj
+  }, {})
+
+
  const newReceipts= myReceipts.map(receipt=>{
      if(movedReceiptKeys[receipt.receiptKey]){
        return movedReceiptKeys[receipt.receiptKey]

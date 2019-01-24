@@ -18,6 +18,7 @@ import { API, Auth,Storage } from 'aws-amplify';
 //import Base64 from '../../Utils/Base64';
 import { Share,Alert } from 'react-native';
 import base64 from 'base64-js'
+import constants from '../../Utils/constants';
 
 
 
@@ -69,7 +70,7 @@ export const addDevice = (deviceToken) => {
         existingData={
             activeInd:true,
             notificationSettings:{
-                showPushNotifications:true,
+               // showPushNotifications:true,
                 alertIncomingReceipt:true,
                 alertUnKnownEmail:true,
                 alertExpiringReceipts:true,
@@ -371,6 +372,7 @@ export const datediff=(first, second)=> {
 
 
 export const moveToMyReceipts=(receipts,isReceiptFolder)=>{
+
     return async dispatch=>{
         //CALL MOVE MY DOCUMENTS HANDLER WITH SPECIFIED RECEIPT KEYS
         const apiName = 'moveReceiptsAPI';
@@ -382,7 +384,8 @@ export const moveToMyReceipts=(receipts,isReceiptFolder)=>{
          }
      }
      try {
-        
+         console.log(receipts);
+        console.log('Calling move selected receitps API');
        const response= await API.post(apiName, path, data);
 
       // dispatch(storeReceiptDetail(result,receipt));
@@ -431,6 +434,7 @@ export const tagReceipt = (receipt,tags) => {
     };
 };
 
+
 export const shareReceipt = (receipt) => {
     return async dispatch=> {
         const result=  await Storage.get(receipt.receiptKey, {level: 'private',
@@ -440,18 +444,29 @@ export const shareReceipt = (receipt) => {
           });
           //CONVERT 
         
-
-         console.log('share content *****');
-      
-        const  bufferData= base64.fromByteArray(result.Body);
+         let content={};
+        // console.log(result.Body);
+         console.log(result.ContentType);
+        if(result.ContentType.includes(constants.TEXT_HTML)){
+           const stringContent= pack(result.Body);
+            content = {
+            // message: ICON_PLUS_BASE64,
+             title: 'Share receipt',
+             url: stringContent,
+           };
+        }else {
+            const  bufferData= base64.fromByteArray(result.Body);
         
          const shareContent='data:'+receipt.contentType+';base64,'+bufferData;
-        // console.log(shareContent);
-         const content = {
-           // message: ICON_PLUS_BASE64,
-            title: 'Share receipt',
-            url: shareContent,
-          };
+        // consol
+            content = {
+                // message: ICON_PLUS_BASE64,
+                 title: 'Share receipt',
+                 url: shareContent,
+               };
+        }
+      
+        //console.log(content);
          
 
           const option = { dialogTitle: 'Share receipt' };

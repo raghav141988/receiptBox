@@ -36,10 +36,10 @@ export default AmplifyTheme = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'space-around',
+        justifyContent: 'center',
         paddingTop: 20,
         width: '100%',
-        marginTop: 30
+        //marginTop: 30
     },
     signUpContainer:{
         flex: 1,
@@ -52,16 +52,19 @@ export default AmplifyTheme = StyleSheet.create({
        width:"100%"
     },
     section: {
-        flex: 1,
+        //flex: 1,
         alignItems:"center",
         width: '100%',
         backgroundColor: 'transparent',
-       // justifyContent:"center",
-        padding: 20
+        justifyContent:"center",
+        padding: 20,
+        paddingLeft:30,
+        paddingRight:30,
+        paddingBottom:5,
     },
     sectionHeader: {
         width: '100%',
-        marginBottom: 32,
+      //  marginBottom: 20,
         paddingLeft:20
     },
     sectionHeaderText: {
@@ -72,20 +75,29 @@ export default AmplifyTheme = StyleSheet.create({
     
     },
     sectionFooter: {
-        width: '100%',
-        padding: 10,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 15,
-        marginBottom: 20
+    width: "100%",
+        paddingLeft: 10,
+        //height:20,
+       // flexDirection: 'row',
+        //justifyContent: 'space-between',
+        //marginTop: 15,
+        //marginBottom: 20
     },
     sectionFooterLink: {
-        fontSize: 17,
-        //fontWeight:'bold',
+        fontSize: 19,
+        fontWeight:'500',
         color: colors.primary,
         textDecorationLine:'underline',
-        alignItems: 'baseline',
+        //alignItems: 'baseline',
         textAlign: 'center'
+    },
+    sectionFooterLeftLink: {
+        fontSize: 19,
+        fontWeight:'bold',
+        color: colors.primary,
+        //textDecorationLine:'underline',
+        //alignItems: 'baseline',
+        textAlign: 'left'
     },
     navBar: {
         marginTop: 35,
@@ -98,9 +110,14 @@ export default AmplifyTheme = StyleSheet.create({
         marginLeft: 12,
         borderRadius: 4
     },
+    leftCell:{
+       padding:20,
+       paddingLeft:5 
+    },
     cell: {
-        flex: 1,
-        width: '50%'
+        //flex: 1,
+        //width: '50%'
+        padding:20
     },
     errorRow: {
         flexDirection: 'row',
@@ -118,16 +135,28 @@ export default AmplifyTheme = StyleSheet.create({
     album: {
         width: '100%'
     },
+    formFieldElement:{
+    flexDirection:"row",
+    alignItems:"center",
+    justifyContent:"center",
+    paddingRight:20,
+    paddingLeft:20,
+    paddingBottom:5,
+    paddingTop:5
+    
+    },
     button: {
         backgroundColor: colors.primary,
         alignItems: 'center',
-        padding: 12,
+        padding: 10,
+        marginTop:30,
         borderRadius:25
     },
     buttonDisabled: {
         backgroundColor: colors.primary,
         alignItems: 'center',
-        padding: 12,
+        marginTop:30,
+        padding: 10,
         borderRadius:25
     },
     buttonText: {
@@ -136,10 +165,12 @@ export default AmplifyTheme = StyleSheet.create({
         fontWeight: '600'
     },
     formField: {
-        marginBottom: 22
+       // marginBottom: 22,
+       // padding:20,
+        width:"100%"
     },
     input: {
-        padding: 16,
+        padding: 20,
         borderBottomWidth: 1,
         borderRadius: 3,
       borderColor: colors.primary,
@@ -161,7 +192,7 @@ export default AmplifyTheme = StyleSheet.create({
     },
     phoneInput: {
         flex: 2,
-        padding: 16,
+        padding: 20,
         borderBottomWidth: 1,
         borderRadius: 3,
         borderColor: colors.primary,
@@ -171,13 +202,16 @@ export default AmplifyTheme = StyleSheet.create({
     },
     picker: {
         flex: 1,
-        height: 55
+        paddingTop:12,
+        height: 50
     },
     pickerItem: {
-        height: 55,
+        height: 45,
+        
         borderBottomWidth: 1,
        // backgroundColor:'#795548',
        borderColor: colors.primary,
         color:colors.primary,
+        alignItems:"center"
     }
 });

@@ -7,6 +7,20 @@
       buildImplicitDependencies = "YES">
       <BuildActionEntries>
          <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "83CBBA2D1A601D0E00E9B192"
+               BuildableName = "libReact.a"
+               BlueprintName = "React"
+               ReferencedContainer = "container:../node_modules/react-native/React/React.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
             buildForTesting = "NO"
             buildForRunning = "YES"
             buildForProfiling = "YES"
@@ -32,9 +46,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
-            BuildableName = "ReceiptOrganizer-tvOS.app"
-            BlueprintName = "ReceiptOrganizer-tvOS"
+            BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
+            BuildableName = "ReceiptOrganizer.app"
+            BlueprintName = "ReceiptOrganizer"
             ReferencedContainer = "container:ReceiptOrganizer.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -52,11 +66,10 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "2">
-      <RemoteRunnable
+      <PathRunnable
          runnableDebuggingMode = "0"
-         BundleIdentifier = "com.lifemadeeasy.receiptmanager"
-         RemotePath = "/var/containers/Bundle/Application/23F0718F-0A5C-4E33-9C9C-1DCB9035FB5A/AmazonMobilePush.app">
-      </RemoteRunnable>
+         FilePath = "/&lt;placeholder&gt;">
+      </PathRunnable>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"

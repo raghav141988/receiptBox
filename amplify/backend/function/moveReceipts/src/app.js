@@ -78,13 +78,13 @@ app.post('/moveReceipts', async function (req, res) {
       
         const extension = mime.extension(receipt.contentType);
         const fileName = uuid.v1() + "." + extension;
-        const destinationFileName = (receiptPrefix+'/' + receipt.receiptKey + fileName).replace(oldPrefix, newPrefix).replace(receiptPrefix, 'private');
+        const destinationFileName = (receiptPrefix+'/' + (receipt.receiptKey) + fileName).replace(oldPrefix, newPrefix).replace(receiptPrefix, 'private');
         const dbReceiptId = destinationFileName.replace(+"/", "");
        
 
         let params = {
             Bucket: bucketName,
-            CopySource: bucketName + '/'+receiptSourceBasePath+'/' + receipt.receiptKey,
+            CopySource: bucketName + '/'+receiptSourceBasePath+'/' + encodeURIComponent(receipt.receiptKey),
             Key: destinationFileName
         };
         console.log('file to be copied to');
@@ -114,7 +114,7 @@ app.post('/moveReceipts', async function (req, res) {
                 const dbResponse = await dynamodb.put(putItemParams).promise();
                 
                 paramsS3Delete.Delete.Objects.push({
-                    Key: receiptSourceBasePath+'/' + receipt.receiptKey
+                    Key: receiptSourceBasePath+'/' + (receipt.receiptKey)
                 });
 
                 succeededReceipts.push(

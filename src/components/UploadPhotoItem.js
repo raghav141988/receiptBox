@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableWithoutFeedback,Dimensions, Image  } f
 
 const { width, height } = Dimensions.get('window');
 const uploadPhotoItem = props =>{ 
-   console.log(props.item);
+   
 
     
     return (

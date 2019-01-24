@@ -17,12 +17,15 @@ export const showAddReceipt=(receipt,isEdit)=>{
         component: {
           options:{
         
-           
+            statusBar: {
+              visible: false,
+              backgroundColor:colors.primary,
+              drawBehind: false,
+                          style:  'dark',
+                          visible: false,
+            },
             topBar: {
-              statusBar: {
-                visible: false,
-                style:  'dark'
-              },
+              
               visible:true,
               animate: true, 
               buttonColor: colors.buttonEnabledColor,
@@ -91,7 +94,13 @@ export const showAddReceiptFromCamera=(cameraResp)=>{
         options: {
           
           topBar: {
-         
+            statusBar: {
+              visible: false,
+              backgroundColor:colors.primary,
+              drawBehind: false,
+                          style:  'dark',
+                          visible: false,
+            },
      // hideOnScroll: true,
      visible:true,
      animate: true, 
@@ -117,7 +126,7 @@ export const showAddReceiptFromCamera=(cameraResp)=>{
            buttonColor: colors.buttonEnabledColor,
             title: {
               text: 'Add Receipt',
-              
+              color: colors.primaryTextColor,
             },
             
            

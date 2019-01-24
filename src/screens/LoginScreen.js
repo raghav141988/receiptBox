@@ -56,7 +56,8 @@ export const startApp=()=>{
       
       statusBar: {
         visible: false,
-        style:  'dark'
+        style:  'dark',
+       // drawBehind: false,
       },
           
             bottomTabs: {
@@ -64,10 +65,14 @@ export const startApp=()=>{
               options: {
                 statusBar: {
                   visible: false,
-                  style:  'dark'
+                  backgroundColor:colors.primary,
+                  drawBehind: false,
+                              style:  'dark',
+                              visible: false,
                 },
                 topbar: {
                  // hideOnScroll: true,
+                 
                   visible: true,
                   buttonColor: colors.buttonEnabledColor,
                   background:{
@@ -90,12 +95,16 @@ export const startApp=()=>{
                         component: {
                           name: 'receiptManager.myreceipts-screen',
                           options: {
-                            statusBar: {
+                           
+                              statusBar: {
+                                visible: false,
+                                drawBehind: false,
+                              style:  'dark',
                               visible: false,
-                              style:  'dark'
-                            },
+                              },
                             topBar: {
                              // hideOnScroll: true,
+                             
                               buttonColor: colors.buttonEnabledColor,
                               background:{
                                 color: colors.primary,
@@ -128,7 +137,7 @@ export const startApp=()=>{
                               iconColor:colors.bottomTabColor,
                              
                              
-                            //  selectedTextColor: colors.,
+                              selectedTextColor: colors.primary,
                               selectedIconColor: colors.primary
                             }
                           }
@@ -145,10 +154,18 @@ export const startApp=()=>{
                         component: {
                           name: 'receiptManager.latestReceipts-screen',
                           options: {
+                           
+                              statusBar: {
+                                visible: false,
+                                backgroundColor:colors.primary,
+                                drawBehind: false,
+                              style:  'dark',
+                              visible: false,
+                              },
                             topBar: {
                              // hideOnScroll: true,
                               animate: true, 
-                             
+                              
                                 buttonColor: colors.buttonEnabledColor,
                                 background:{
                                   color: colors.primary,
@@ -176,7 +193,7 @@ export const startApp=()=>{
                               textColor:colors.bottomTabColor,
                               color: colors.bottomTabColor,
                               iconColor:colors.bottomTabColor,
-                              //selectedTextColor: colors.primaryTextColor,
+                              selectedTextColor: colors.primary,
                               selectedIconColor: colors.primary
                             }
                           }
@@ -195,7 +212,16 @@ export const startApp=()=>{
                       component: {
                         name: 'receiptManager.notifications-screen',
                         options: {
+                         
+                            statusBar: {
+                              visible: false,
+                              backgroundColor:colors.primary,
+                              drawBehind: false,
+                              style:  'dark',
+                              visible: false,
+                            },
                           topBar: {
+                            
                            // hideOnScroll: true,
                             buttonColor: colors.buttonEnabledColor,
                             background:{
@@ -228,7 +254,7 @@ export const startApp=()=>{
                               color: colors.bottomTabColor,
                               iconColor:colors.bottomTabColor,
                           
-                          //  selectedTextColor: colors.,
+                              selectedTextColor: colors.primary,
                             selectedIconColor: colors.primary
                           }
                         }
@@ -247,7 +273,16 @@ export const startApp=()=>{
                       component: {
                         name: 'receiptManager.myaccounts-screen',
                         options: {
+                         
+                            statusBar: {
+                             
+                              backgroundColor:colors.primary,
+                              drawBehind: false,
+                              style:  'dark',
+                              visible: false,
+                            },
                           topBar: {
+                             style:  'dark',
                            // hideOnScroll: true,
                             buttonColor: colors.buttonEnabledColor,
                             background:{
@@ -280,7 +315,7 @@ export const startApp=()=>{
                            
                             textColor:colors.bottomTabColor,
                               color: colors.bottomTabColor,
-                          //  selectedTextColor: colors.,
+                              selectedTextColor: colors.primary,
                             selectedIconColor: colors.primary
                           }
                         }

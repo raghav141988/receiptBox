@@ -12,13 +12,13 @@
  */
 
 import React from 'react';
-import { View, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View,Text,TouchableWithoutFeedback, Keyboard,Platform } from 'react-native';
 import { Auth, I18n, Logger, JS } from 'aws-amplify';
 import AuthPiece from './AuthPiece';
-import { AmplifyButton, FormField, LinkCell, Header, ErrorRow } from '../AmplifyUI';
-
+import { AmplifyButton, FormField, LinkCell,LinkLeftCell, Header, ErrorRow } from '../AmplifyUI';
+import Icon from 'react-native-vector-icons/dist/Ionicons';
 const logger = new Logger('SignIn');
-
+import {colors} from '../../../Utils/theme';
 export default class SignIn extends AuthPiece {
     constructor(props) {
         super(props);
@@ -57,15 +57,18 @@ export default class SignIn extends AuthPiece {
             { onPress: Keyboard.dismiss, accessible: false },
             React.createElement(
                 View,
-                { style: theme.section },
+                { },
                 React.createElement(
-                    Header,
-                    { theme: theme },
-                    I18n.get('Sign in to ReceiptBox')
-                ),
+                    View,
+                    { style: theme.section },
+  
                 React.createElement(
                     View,
                     { style: theme.sectionBody },
+
+                 React.createElement(View,{style:theme.formFieldElement},
+                    React.createElement(Icon,{size:24, color:colors.primary,name:Platform.OS==='ios'?"ios-person":"md-person"}),
+
                     React.createElement(FormField, {
                         theme: theme,
                         onChangeText: text => this.setState({ username: text }),
@@ -73,7 +76,10 @@ export default class SignIn extends AuthPiece {
                         placeholder: I18n.get('Enter your username *'),
                        // placeholderTextColor:'white',
                         required: true
-                    }),
+                    })),
+                    React.createElement(View,{style:theme.formFieldElement},
+                        React.createElement(Icon,{size:24, color:colors.primary,name:Platform.OS==='ios'?"ios-unlock":"md-unlock"}),
+    
                     React.createElement(FormField, {
                         theme: theme,
                         onChangeText: text => this.setState({ password: text }),
@@ -82,7 +88,7 @@ export default class SignIn extends AuthPiece {
                        // placeholderTextColor:'white',
                         secureTextEntry: true,
                         required: true
-                    }),
+                    })),
                     React.createElement(AmplifyButton, {
                         text: I18n.get('Sign In').toUpperCase(),
                         theme: theme,
@@ -90,6 +96,12 @@ export default class SignIn extends AuthPiece {
                         disabled: !this.state.username || !this.state.password
                     })
                 ),
+               
+            ),
+            
+            React.createElement(
+                View,
+                { },
                 React.createElement(
                     View,
                     { style: theme.sectionFooter },
@@ -99,17 +111,27 @@ export default class SignIn extends AuthPiece {
                         I18n.get('Forgot Password?')
                     ),
                     React.createElement(
-                        LinkCell,
+                        View,
+                        { style: {flexDirection:'row'} },
+                    React.createElement(
+                        Text,
+                        { style: {color:colors.primary, fontSize:19,alignSelf:'center'}, onPress: () => this.changeState('signUp') },
+                        I18n.get('No Account?')
+                    ),
+                    React.createElement(
+                        LinkLeftCell,
                         { theme: theme, onPress: () => this.changeState('signUp') },
-                        I18n.get('No Account? Sign Up')
-                    )
-                ),
+                        I18n.get('SignUp')
+                    ),
+                    ))
+                ,
                 React.createElement(
                     ErrorRow,
                     { theme: theme },
                     this.state.error
                 )
-            )
+                )),
+           
         );
     }
 }

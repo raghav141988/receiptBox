@@ -4,6 +4,7 @@ import { Image,View,Text, StyleSheet, Dimensions} from "react-native";
 import { colors } from '../Utils/theme';
 import {Avatar,ListItem} from 'react-native-elements';
 import {getAvatarPrefix} from '../Utils/avatarPrefix';
+import constants from "../Utils/constants";
 class UserProfileComponent extends Component
 {
     state={
@@ -31,6 +32,7 @@ class UserProfileComponent extends Component
 </Text>
 <Text style={styles.userLabel} >{this.props.cognitoUser?this.props.cognitoUser.attributes.email:""}
 </Text>
+
 </View>
 
 </View>

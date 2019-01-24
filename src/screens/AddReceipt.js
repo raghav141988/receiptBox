@@ -119,7 +119,7 @@ class AddReceipt extends React.Component {
   getPhotos = () => {
     CameraRoll
       .getPhotos({
-        first: 20,
+        first: 50,
       })
       .then(res => {
         this.setState({ images: res.edges,
@@ -249,9 +249,11 @@ class AddReceipt extends React.Component {
   /* Fetch more photos from the camera roll */
   fetchMorePhotos=()=>{
     if(this.state.pageInfo && this.state.pageInfo.has_next_page){
+      console.log(this.state.pageInfo.end_cursor);
+
     CameraRoll
     .getPhotos({
-      first: 20,
+      first: 50,
       after:this.state.pageInfo.end_cursor
     })
     .then(res => {
@@ -361,7 +363,7 @@ return (
             inputStyle={{fontSize:17,width:"100%"}}
             inputContainerStyle={{borderRadius:25,
             margin:5,
-            fontSize:17,
+           
   //padding:5,
             alignSelf:"center",
  // borderTopWidth:1,
@@ -472,15 +474,10 @@ onPress = {
           }
     
         </ScrollView>
-        <Modal
-          visible={this.props.isLoading}
-          onRequestClose={() => null}
-        >
-          <ActivityIndicator
-            style={styles.activityIndicator}
-            size="large"
-          />
-        </Modal>
+        {this.props.isLoading?<View style={styles.loading}>
+      <ActivityIndicator size='large' />
+    </View>:null
+        }
       </View>)
     :
     <UploadPhoto fetchMorePhotos={this.fetchMorePhotos} data={this.state} updateSelectedImage={ this.updateSelectedImage} />
@@ -491,6 +488,15 @@ onPress = {
 styles = StyleSheet.create({
   buttonGroupContainer: {
     marginHorizontal: 8,
+  },
+  loading: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   addImageContainer: {
     width: width,

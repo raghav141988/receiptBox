@@ -61,9 +61,13 @@ class UploadPhoto extends React.Component {
     return (
       <View>
         <View style={styles.imageContainer}>
-          <FlatList contentContainerStyle={styles.scrollViewContainer}
+          <FlatList
+           numColumns={2}
+           horizontal={false}
+          contentContainerStyle={styles.scrollViewContainer}
             data={images}
             onEndReached={this.props.fetchMorePhotos}
+          
             onEndReachedThreshold={100}
             keyExtractor={this._keyExtractor}
             renderItem={(info) => (
@@ -87,8 +91,8 @@ styles = StyleSheet.create({
     height: height - 60,
   },
   scrollViewContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    //flexDirection: 'row',
+    
   },
 })
 

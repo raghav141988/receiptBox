@@ -11,7 +11,7 @@ class NotificationSettings extends Component
 
     state={
       notificationSettings:{
-        showPushNotifications:false,
+      //  showPushNotifications:false,
         alertIncomingReceipt:false,
         alertUnKnownEmail:false,
         alertExpiringReceipts:false,
@@ -33,7 +33,7 @@ class NotificationSettings extends Component
     componentDidMount() {
       this.setState({
         notificationSettings:{
-        showPushNotifications:this.props.notificationSettings.showPushNotifications,
+       // showPushNotifications:this.props.notificationSettings.showPushNotifications,
         alertIncomingReceipt:this.props.notificationSettings.alertIncomingReceipt,
         alertUnKnownEmail:this.props.notificationSettings.alertUnKnownEmail,
         alertExpiringReceipts:this.props.notificationSettings.alertExpiringReceipts,
@@ -44,79 +44,36 @@ class NotificationSettings extends Component
     
 
     onSwitchToggle=(key)=>{
-     let enablePush={
-      showPushNotifications:this.state.notificationSettings['showPushNotifications']
+    
+     let notificationChanges={
+      ... this.state.notificationSettings,
+      [key]:!this.state.notificationSettings[key],
      }
-      if(!this.state.notificationSettings[key]){
-        enablePush={
-          showPushNotifications:true
-         }
-      }
-
-      let notificationSetting={
-        ...this.state.notificationSettings,
-        ...enablePush,
-        [key]:!this.state.notificationSettings[key],
-       
-      }
-
-      if(key==='showPushNotifications'){
-        if(this.state.notificationSettings[key]){
-          notificationSetting={
-            showPushNotifications:false,
-            alertIncomingReceipt:false,
-            alertUnKnownEmail:false,
-            alertExpiringReceipts:false,
-            alertUnknwonRcptExpiring:false
-          }
-          this.setState({
-            notificationSettings:{
-           ...notificationSetting
-            }
-          });
-        }
-        else {
-          notificationSetting={
-          showPushNotifications:this.props.notificationSettings.showPushNotifications,
-          alertIncomingReceipt:this.props.notificationSettings.alertIncomingReceipt,
-          alertUnKnownEmail:this.props.notificationSettings.alertUnKnownEmail,
-          alertExpiringReceipts:this.props.notificationSettings.alertExpiringReceipts,
-          alertUnknwonRcptExpiring:this.props.notificationSettings.alertUnknwonRcptExpiring
-          }
-          this.setState({
-            notificationSettings:{
-           ...notificationSetting
-            }
-          });
-        }
-      }
-      
-     else {
-
      this.setState(prevState=>{
       return {
        
         notificationSettings:{
           ...prevState.notificationSettings,
+        
+         
           [key]:!prevState.notificationSettings[key],
-          ...enablePush
         }
        
       }
 
     });
-  }
+  
 
-      this.props.onUpdateNotification(notificationSetting);
+      this.props.onUpdateNotification(notificationChanges);
     }
     render() {
       return (
         <View style={styles.contatiner}>
-          <Switch
+          {/* <Switch
           label="Allow Push Notiifications"
           value={this.state.notificationSettings.showPushNotifications}
           onValueChange={()=>this.onSwitchToggle('showPushNotifications')}
-          />
+          /> */}
           <View style={styles.notificationLabelContainer}>
             <HeadingText style={{fontWeight:'bold',paddingLeft:10}}>
              Notifications from Receipt Box

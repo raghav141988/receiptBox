@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {connect} from 'react-redux';
-import {StyleSheet,View,Platform,Alert} from 'react-native';
+import {StyleSheet,ActivityIndicator,View,Platform,Alert} from 'react-native';
 import {fetchMyReceiptDetails,deleteReceipts,shareReceipt} from '../store/actions/receipts';
 import RenderPDF from '../components/RenderPDF';
 import RenderHTML from '../components/RenderHTML';
@@ -104,6 +104,10 @@ import  {  Auth } from 'aws-amplify';
     return (
      <View style={styles.container}>
        {content}  
+       {this.props.isLoading?<View style={styles.loading}>
+      <ActivityIndicator size='large' />
+    </View>:null
+        }
      </View>
     )
   }
@@ -111,7 +115,8 @@ import  {  Auth } from 'aws-amplify';
 const mapStateToProps = state => {
     return {
         receiptDetail: state.receipts.receiptDetail,
-        isReceiptDeleted:state.ui.isReceiptDeleted
+        isReceiptDeleted:state.ui.isReceiptDeleted,
+        isLoading:state.ui.isLoading
     };
   };
   
@@ -129,7 +134,16 @@ const mapStateToProps = state => {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-    }
+    },
+    loading: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withAuthenticator(ReceiptDetail));

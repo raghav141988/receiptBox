@@ -126,6 +126,22 @@ export const LinkCell = props => {
     );
 };
 
+export const LinkLeftCell = props => {
+    const theme = props.theme || AmplifyTheme;
+    return React.createElement(
+        View,
+        { style: theme.leftCell },
+        React.createElement(
+            TouchableHighlight,
+            { onPress: props.onPress, underlayColor: linkUnderlayColor },
+            React.createElement(
+                Text,
+                { style: theme.sectionFooterLeftLink },
+                props.children
+            )
+        )
+    );
+};
 export const Header = props => {
     const theme = props.theme || AmplifyTheme;
     return React.createElement(

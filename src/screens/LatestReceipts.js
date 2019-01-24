@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Animated, Alert,Button,Image, Platform, StyleSheet,DatePickerIOS, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
+import { Animated,ActivityIndicator,Picker, Alert,Button,Image, Dimensions,Platform, StyleSheet,DatePickerIOS, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
 
 import { withAuthenticator } from 'aws-amplify-react-native';
 
@@ -17,7 +17,11 @@ import {colors} from '../Utils/theme';
 import CheckBox from '../components/CheckBox';
 import MainText from '../components/MainText';
 import HeadingText from '../components/HeadingText';
-import {ButtonGroup} from 'react-native-elements';
+import {ButtonGroup, ThemeConsumer} from 'react-native-elements';
+import Constants from '../Utils/constants';
+import {CATEGORIES} from '../Utils/avatarPrefix';
+import constants from '../Utils/constants';
+const { width, height } = Dimensions.get('window');
 
 const AnimatedListView = Animated.createAnimatedComponent(FlatList);
 const MOVE_RECEIPTS_TEXT='Move all emails to my receipts';
@@ -27,7 +31,7 @@ const buttons = ['Receipts', 'Others']
 
     setDate = (newDate)=>{
       this.setState({
-          ...this.state,
+         
           chosenDate:newDate
       });
      }
@@ -66,7 +70,7 @@ const buttons = ['Receipts', 'Others']
       // this.NAVBAR_HEIGHT=prevState.isAdvSearchOpened?100:130
       
          return {
-           ...this.state,
+          
            isAdvSearchOpened:!prevState.isAdvSearchOpened,
          //  NAVBAR_HEIGHT:prevState.isAdvSearchOpened?100:120
            
@@ -80,7 +84,7 @@ const buttons = ['Receipts', 'Others']
          //  this.NAVBAR_HEIGHT=prevState.isAdvSearchOpened?100:130
           
              return {
-               ...this.state,
+              
                isAdvSearchOpened:!prevState.isAdvSearchOpened,
              //  NAVBAR_HEIGHT:prevState.isAdvSearchOpened?100:120
                
@@ -104,8 +108,10 @@ const buttons = ['Receipts', 'Others']
      
       this.state = {
         showPicker:false,
+        currentUser:null,
         pickerCategory:null,
         scrollAnim,
+        swipedReceipt:null, 
        selectedReceipts:[],
        isChecked:[],
        selectedIndex: 0,
@@ -115,7 +121,13 @@ const buttons = ['Receipts', 'Others']
        didScreenAppear:false,
        isReceiptFolder:true,
     };
+    
     }
+
+    updateCategory=(category)=>{
+      this.setState({pickerCategory:category});
+      }
+
     /* Handle the selection of the receipt */
     onItemSelected=(receipt)=>{
       this.handleCancelSelection();
@@ -136,9 +148,18 @@ const buttons = ['Receipts', 'Others']
           isReceiptFolder:this.state.isReceiptFolder
         },
         options: {
+          statusBar: {
+            visible: false,
+            backgroundColor:colors.primary,
+            drawBehind: false,
+                        style:  'dark',
+                        visible: false,
+          },
           topBar: {
             //hideOnScroll: true,
+           
             backButton: {
+              title:'',
               color: colors.buttonEnabledColor, // For back button text
             },
             buttonColor: colors.buttonEnabledColor,
@@ -147,7 +168,8 @@ const buttons = ['Receipts', 'Others']
           //translucent: true,
         },
             title: {
-              text: receipt.title
+              text: receipt.title,
+              color: colors.primaryTextColor,
             },
             rightButtons:[
             //   {
@@ -156,7 +178,8 @@ const buttons = ['Receipts', 'Others']
             //  },
              {
                 id: 'delete',
-                icon: sources[1]
+                icon: sources[1],
+                color: colors.buttonEnabledColor, 
              }
             ]
           }
@@ -191,6 +214,44 @@ categories
 </View>):null;
 
 }
+getCategorizeButtons=(sources)=>{
+  return [
+ 
+     {
+       id: 'categorized',
+       text: 'Done',
+       color: colors.buttonEnabledColor, 
+     },
+     {
+       id: 'cancel',
+       text: 'Cancel',
+       color: colors.buttonEnabledColor, 
+     }
+   ]
+ }
+
+showTopBarButtons=(buttonFunction )=>{
+  Promise.all([
+    Icon.getImageSource(Platform.OS === 'android' ? "md-trash" : "ios-trash", 25),
+   
+  ]).then(sources => {
+    Navigation.mergeOptions(this.props.componentId, {
+      topBar: {
+        title: {
+          text: '',
+          
+        },
+        backButton: {
+          color: colors.buttonEnabledColor, // For back button text
+        },
+        buttonColor: colors.buttonEnabledColor,
+        rightButtons: buttonFunction(sources)
+      }
+    });
+  
+});
+}
+
     signOut=async ()=>{
         Auth.signOut()
         .then(() => {
@@ -204,7 +265,7 @@ categories
       navigationButtonPressed({ buttonId }) {
       
         if(buttonId==='move'){
-          this.moveSelectedReceipts();
+          this.askForUpdateCategory();
         }
         else if(buttonId==='cancel'){
           this.handleCancelSelection();
@@ -212,14 +273,23 @@ categories
         else if(buttonId==='delete'){
           this.deleteSeletedReceipts();
         }
+        else if(buttonId==='categorized'){
+          this.moveSelectedReceipts(this.state.pickerCategory);
+          
+        }
       }  
       handleCancelSelection=()=>{
         const initialCheck=this.props.receipts.map(()=>false);
   this.setState({isChecked : initialCheck,
-    allChecked:false
+    allChecked:false,
+    showPicker:false,
   })
         Navigation.mergeOptions(this.props.componentId, {
           topBar: {
+            title:{
+              text:Constants.APP_NAME
+              
+            },
          rightButtons: [
               
             ]
@@ -231,21 +301,27 @@ categories
         this.setState({didScreenAppear:false});
      }
 async componentDidAppear(){
+  let currentUser = this.state.currentUser;
+  console.log(currentUser);
   try {
+   // if(currentUser===null){
     const user = await Auth.currentAuthenticatedUser();
-    if (user) {
+    console.log('user setting');
+    console.log(user['username']);
+    this.setState({currentUser:user});
+   // }
+  
+    if (currentUser) {
       this.setState({
         didScreenAppear: true
       });
       if (this.props.receipts === undefined || this.props.receipts === null || this.props.receipts.length === 0) {
         this.fetchReceipts(this.state.isReceiptFolder);
       }
-    } else {
-      this.props.onStateChange('signedOut', null);
-    }
+    } 
   } catch (err) {
     console.log('err: ', err);
-    this.props.onStateChange('signedOut', null);
+    //this.props.onStateChange('signedOut', null);
   }
 
   
@@ -279,7 +355,7 @@ toggleMultiSelect=()=>{
 }
 
 /* Deletes the selected receipts */
-deleteSeletedReceipts =()=>{
+deleteSeletedReceipts =(swipedReceipt)=>{
   let deletableReceipts=[];
 this.props.receipts.map((receipt,index)=>{
   if(this.state.isChecked[index]){
@@ -287,9 +363,19 @@ this.props.receipts.map((receipt,index)=>{
   }
 
 });
+if(deletableReceipts.length==0){
+  //VERIFY ITS FROM SWIPE
+  swipedReceipt!==null && swipedReceipt!==undefined ?deletableReceipts.push({...swipedReceipt}):null;
+
+
+}
+console.log(swipedReceipt);
+console.log(deletableReceipts);
+
 if(deletableReceipts.length>0){
   this.deleteReceipts(deletableReceipts);
 }
+this.setState({swipedReceipt:null});
 }
 deleteReceipts=(deletableReceipts)=>{
   const isReceiptFolder=  this.state.isReceiptFolder;
@@ -297,20 +383,59 @@ deleteReceipts=(deletableReceipts)=>{
  
   
 }
+/* ASK FOR UPDATING CATEGORIES */
+askForUpdateCategory=()=>{
+  Alert.alert(
+    Constants.CATEGORIZE_RECEIPT_TITLE_ALERT,
+    Constants.MOVE_RECEIPT_MESSAGE,
+    [
+      {text: Constants.YES, onPress: () => {
+        this.setState({pickerCategory:CATEGORIES[0],
+        showPicker:true
+      });
+      this.showTopBarButtons(this.getCategorizeButtons);
+
+    }
+    },
+      {text: Constants.NO, onPress: () => this.moveSelectedReceipts()},
+      
+    ],
+    { cancelable: false }
+  )
+}
 /* Moves the selected latest receipts to my receipts folder */
-moveSelectedReceipts=()=>{
+moveSelectedReceipts=(category)=>{
+  console.log('move selected reeipts'+category);
   let movableReceipts=[];
 this.props.receipts.map((receipt,index)=>{
   if(this.state.isChecked[index]){
-    movableReceipts.push(receipt);
+    let newReceipt={...receipt};
+    if(category!==null && category!==undefined){
+      newReceipt['category']=category;
+    }
+    movableReceipts.push(newReceipt);
   }
 
 })
-console.log(movableReceipts)
+
+console.log(movableReceipts);
+if(movableReceipts.length==0){
+  //VERIFY ITS FROM SWIPE
+  let categoriableReceipt={...this.state.swipedReceipt}
+  if(category!==null && category!==undefined){
+  
+    categoriableReceipt['category']=category;
+  }
+
+  this.state.swipedReceipt!==null && this.state.swipedReceipt!==undefined ?movableReceipts.push(categoriableReceipt):null;
+
+
+}
 if(movableReceipts.length>0){
   //CALL API TO MOVE RECEIPTS TO MY RECEIPT FOLDER
 
   this.moveReceipts(movableReceipts);
+  this.setState({swipedReceipt:null});
 }
 }
 moveReceipts=(receipts)=>{
@@ -359,16 +484,21 @@ updateNavBarForSelection=(newArray)=>{
           backButton: {
             color: colors.buttonEnabledColor, // For back button text
           },
+          title:{
+            text:''
+          },
           buttonColor: colors.buttonEnabledColor,
           rightButtons: [
             {
               id: 'cancel',
-              text: 'Cancel'
+              text: 'Cancel',
+              color: colors.buttonEnabledColor, 
             },
             {
               id: 'delete',
               icon: sources[1],
-              text:'delete'
+              text:'delete',
+              color: colors.buttonEnabledColor, 
             },
            
             {
@@ -423,7 +553,11 @@ updateIndex= (selectedIndex) =>{
     
 
   }
-    
+  
+  const defaultText=this.state.selectedIndex===0?
+  constants.RECEIPTS_DEFAULT_PREFIX+(this.state.currentUser!==null?this.state.currentUser['username']:'')
+  +constants.EMAIL_DOMAIN+ constants.RECEIPTS_DEFAULT_TEXT:constants.RECEIPTS_DEFAULT_PREFIX+(this.state.currentUser!==null?this.state.currentUser['username']:'')+constants.EMAIL_DOMAIN+constants.UNKNOWN_RECEIPTS_DEFAULT_TEXT
+
     return (
     
       
@@ -450,71 +584,75 @@ updateIndex= (selectedIndex) =>{
       
         ):null
       }
-      {/* {
-      this.props.receipts?(
-     <View style={styles.instrContainer}>
-<View style={{width:'25%'}}>
-<CheckBox  
-  
- 
-  toggle={()=>this.selectAllToggle()}
-/>
-</View>
-<MainText>
-          <HeadingText style={{fontSize:14}}>{MOVE_RECEIPTS_TEXT}</HeadingText>
-        </MainText>
-  
-     </View>):null
-      } */}
-      <Animated.View style={styles.receiptList} >
-        <AnimatedListView
-         data={this.props.receipts}
-         extraData={this.state}
-         keyExtractor={this._keyExtractor}
-         onRefresh={() => this.onRefresh()}
-          refreshing={this.state.isFetching}
-         onLongPress={()=>{}}
-        // ListHeaderComponent={this._getHeaderComponent}
-         renderItem={(info) =>{
-          const swipeoutBtns = [
-            {
-              text: 'Move',
-              backgroundColor:colors.primary,
-              onPress: () => {console.log('move pressed');
-            console.log(info.item)
-            }
-            },
-            {
-                text: 'Delete',
-                backgroundColor:colors.accentColor,
-                onPress: () => {console.log('delete pressed');
-                console.log(info.item)
-              }
-              },
-              
-          ]; 
-          
-          return (
-          <ReceiptItem
-          receiptItem={info.item}
-          isChecked={this.state.isChecked[info.index]}
-          swipeoutBtns={swipeoutBtns}
-          canShowCheckbox={true}
-         
-          receiptImage={info.item.image}
-          onToggleCheckBox={()=>this.onToggleCheckBox(info.index)}
-          onItemPressed={() => this.onItemSelected(info.item)}
-        />
-         )}
+      {
+        
+        (this.props.receipts===undefined ||this.props.receipts.length==0)?
+        (<View style={{padding:20}}>
+          <Text style={{fontSize:colors.textFontSize,
+          //fontStyle:'italic',
+          color:colors.primary,
+          }}>
+          {
+            defaultText
           }
-         
-          scrollEventThrottle={1}
-         
-          
-          onScrollEndDrag={this._onScrollEndDrag}
-          
-        />
-        </Animated.View>
+          </Text>
+        </View>):(
+
+<Animated.View style={styles.receiptList} >
+<AnimatedListView
+ data={this.props.receipts}
+ extraData={this.state}
+ keyExtractor={this._keyExtractor}
+ onRefresh={() => this.onRefresh()}
+  refreshing={this.state.isFetching}
+ onLongPress={()=>{}}
+// ListHeaderComponent={this._getHeaderComponent}
+ renderItem={(info) =>{
+  const swipeoutBtns = [
+    {
+      text: 'Move',
+      backgroundColor:colors.primary,
+      onPress: () => {
+        this.setState({swipedReceipt:info.item});
+        this.askForUpdateCategory();
+    }
+    },
+    {
+        text: 'Delete',
+        backgroundColor:colors.accentColor,
+        onPress: () => {
+
+          this.setState({swipedReceipt:info.item});
+          this.deleteSeletedReceipts(info.item);
+      }
+      },
+      
+  ]; 
+  
+  return (
+  <ReceiptItem
+  receiptItem={info.item}
+  isChecked={this.state.isChecked[info.index]}
+  swipeoutBtns={swipeoutBtns}
+  canShowCheckbox={true}
+ 
+  receiptImage={info.item.image}
+  onToggleCheckBox={()=>this.onToggleCheckBox(info.index)}
+  onItemPressed={() => this.onItemSelected(info.item)}
+/>
+ )}
+  }
+ 
+  scrollEventThrottle={1}
+ 
+  
+  onScrollEndDrag={this._onScrollEndDrag}
+  
+/>
+</Animated.View>
+        )
+      }
+      
         {
           this.isanyItemSelected()?
         (<ActionButton 
@@ -523,13 +661,18 @@ updateIndex= (selectedIndex) =>{
         buttonColor={colors.primary}>
          <Icon name="md-create" style={styles.actionButtonIcon} />
           
-          <ActionButton.Item buttonColor={colors.primary} title="Move to My Receipts" onPress={() => this.moveSelectedReceipts()}>
+          <ActionButton.Item buttonColor={colors.primary} title="Move to My Receipts" onPress={() => this.askForUpdateCategory()}>
             <Icon name="md-move" style={styles.actionButtonIcon} />
           </ActionButton.Item>
           <ActionButton.Item buttonColor={colors.primary} title="Delete Receipts" onPress={this.deleteSeletedReceipts}>
             <Icon name="md-trash" style={styles.actionButtonIcon} />
           </ActionButton.Item>
         </ActionButton>):null
+        }
+        {this._getPicker()}
+        {this.props.isLoading?<View style={styles.loading}>
+      <ActivityIndicator size='large' />
+    </View>:null
         }
       </View>
     );
@@ -539,7 +682,8 @@ const mapStateToProps = state => {
  
     return {
       receipts: state.receipts.isReceiptFolder?state.receipts.latestReceipts:state.receipts.unknownReceipts,
-      isReceiptDeleted:state.ui.isReceiptDeleted
+      isReceiptDeleted:state.ui.isReceiptDeleted,
+      isLoading:state.ui.isLoading
     };
   };
   
@@ -566,6 +710,15 @@ const mapStateToProps = state => {
     notificationPrimaryButton:{
       backgroundColor: colors.primary,
     
+    },
+    loading: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      top: 0,
+      bottom: 0,
+      alignItems: 'center',
+      justifyContent: 'center'
     },
     selectedTextStyle:{
       color:'white'

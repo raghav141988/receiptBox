@@ -7,6 +7,8 @@ import { List, ListItem,Button,ButtonGroup } from 'react-native-elements';
 import {deleteNotification,moveNotification,fetchUserNotifications} from '../store/actions/notificationActions'
 import { colors } from '../Utils/theme';
 import  {  Auth } from 'aws-amplify';
+import constants from '../Utils/constants';
+
 class Notification extends Component
 {
   state = {
@@ -40,12 +42,12 @@ async componentDidAppear(){
   try {
     const user = await Auth.currentAuthenticatedUser();
     if (user===undefined) {
-      this.props.onStateChange('signedOut', null);
+     // this.props.onStateChange('signedOut', null);
       
     } 
   } catch (err) {
     console.log('err: ', err);
-    this.props.onStateChange('signedOut', null);
+   // this.props.onStateChange('signedOut', null);
   }
 
   
@@ -63,7 +65,9 @@ async componentDidAppear(){
           hideChevron
           bottomDivider
             roundAvatar
-            title={( <Text style={{flex: 1, flexWrap: 'wrap'}}>{item.receiptKey}</Text>)}
+            title={( <Text style={{flex: 1, flexWrap: 'wrap',
+          fontSize:colors.textFontSize
+          }}>{item.receiptKey +constants.NOTIFICATION_EXPIRE_MESSAGE+item.expiringOn+constants.NOTIFICATION_EXPIRE_MESSAGE_SUFFIX}</Text>)}
            subtitle={(
             <ButtonGroup 
             

@@ -5,6 +5,7 @@ import {
     connect
 } from "react-redux";
 import {
+    ScrollView,
     View,
     StyleSheet,
     Text,
@@ -139,7 +140,7 @@ async componentDidAppear() {
 }
 
 render() {
-    return ( < View style = {styles.container } >
+    return ( < ScrollView style={{flex:1}} contentContainerStyle = {styles.container } >
         < View style = {styles.listItem}
         onPress = { this.loadUserProfile } >
         < ListItem bottomDivider title={
@@ -228,13 +229,13 @@ render() {
 
         </ListItem>
          </TouchableOpacity> 
-        </View>)
+        </ScrollView>)
     }
 }
 
 export const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        //flex: 1,
 
         backgroundColor: '#efefef'
     },
