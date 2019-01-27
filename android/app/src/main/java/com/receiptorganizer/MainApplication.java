@@ -3,11 +3,14 @@ package com.receiptorganizer;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.amazonaws.amplify.pushnotification.RNPushNotificationPackage;
+import com.amazonaws.RNAWSCognitoPackage;
+import cl.json.RNSharePackage;
 import com.imagepicker.ImagePickerPackage;
 import org.wonday.pdf.RCTPdfView;
 import com.RNFetchBlob.RNFetchBlobPackage;
-import com.amazonaws.RNAWSCognitoPackage;
-import com.amazonaws.amplify.pushnotification.RNPushNotificationPackage;
+
+
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
@@ -16,11 +19,11 @@ import com.facebook.soloader.SoLoader;
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.react.NavigationReactNativeHost;
 import com.reactnativenavigation.react.ReactGateway;
-
+import cl.json.ShareApplication;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainApplication extends NavigationApplication {
+public class MainApplication extends NavigationApplication implements ShareApplication,ReactApplication {
 
   @Override
     protected ReactGateway createReactGateway() {
@@ -32,6 +35,7 @@ public class MainApplication extends NavigationApplication {
         };
         return new ReactGateway(this, isDebug(), host);
     }
+
 
     @Override
     public boolean isDebug() {
@@ -47,10 +51,15 @@ public class MainApplication extends NavigationApplication {
            new VectorIconsPackage(),
            new RNFetchBlobPackage(),
            new RCTPdfView(),
-           new ImagePickerPackage()
+           new ImagePickerPackage(),
+             new RNSharePackage()
         );
     }
-  
+  @Override
+     public String getFileProviderAuthority() {
+            return "com.receiptorganizer.provider";
+     }
+
     @Override
     public List<ReactPackage> createAdditionalReactPackages() {
         return getPackages();
@@ -66,6 +75,10 @@ public class MainApplication extends NavigationApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+         
+            new RNAWSCognitoPackage(),
+          
+            new RNSharePackage(),
             new ImagePickerPackage(),
             new RCTPdfView(),
             new RNFetchBlobPackage(),

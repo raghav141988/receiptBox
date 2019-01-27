@@ -51,6 +51,7 @@ import {modalOpen} from '../store/actions/ui';
 import RenderPDF from '../components/RenderPDF';
 import RenderHTML from '../components/RenderHTML';
 import {CATEGORIES} from '../Utils/avatarPrefix';
+import AndroidPicker from '../components/AndroidPicker';
 const { width, height } = Dimensions.get('window');
 
 let styles = {};
@@ -293,26 +294,66 @@ class AddReceipt extends React.Component {
     }
   }
 
+  handleCategorySelAndroid=(category)=>{
+    // this.updateCategory(category);
+     if('Cancel'!==category){
+       this.setState({
+         showPicker:false,
+         input:{
+           ...this.state.input,
+           category:category
+         }
+       })
+      }else {
+        this.setState({
+          showPicker:false,
+  
+        })
+      }
+  }
+
   _getPicker=()=>{
-    const categories=CATEGORIES.map(category=>{
-      return (<Picker.Item label={category} value={category} />)
-     });
-return this.state.showPicker?
-   (  <View
-      style={{ bottom:0,right:0, position:'absolute',height: 200, width:width,zIndex:999,backgroundColor:"#efefef" }}
-        >
-       <Picker
+    if(Platform.OS==='ios'){
+      const categories=CATEGORIES.map((category,index)=>{
+        return (<Picker.Item key={index} label={category} value={category} />)
+       });
       
-       mode='dialog'
-selectedValue={this.state.input.category}
+    return this.state.showPicker?
+     (  <View
+        style={{ bottom:0,right:0, position:'absolute',height: 200, width:width,zIndex:999,backgroundColor:'#fff' }}
+          >
+         <Picker
+         style={{justifyContent:"center"}}
+         mode='dropdown'
+    selectedValue={this.state.input.category}
+    
+    onValueChange={(itemValue, itemIndex) => this.setState({
+     input: {
+        ...this.state.input,
+        category:itemValue
 
-onValueChange={(itemValue, itemIndex) => this.updateInput('category', itemValue)}>
-{
-  categories
-}
-
-</Picker>
-</View>):null;
+      }
+    })}>
+    {
+    categories
+    }
+    
+    </Picker>
+    </View>):null;
+     }
+      else if(Platform.OS==='android'){
+       let categories=[...CATEGORIES,'Cancel'];
+    
+       return ( <AndroidPicker
+        items={categories}
+        showPicker={this.state.showPicker}
+        onSelect={this.handleCategorySelAndroid}
+        onClose={()=>{
+          
+          this.setState({showPicker:false})}}
+      /> );
+    
+      }
 
   }
 

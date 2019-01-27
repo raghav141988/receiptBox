@@ -56,7 +56,7 @@ export const startApp=()=>{
       
       statusBar: {
         visible: false,
-        style:  'dark',
+        style:  'light',
        // drawBehind: false,
       },
           
@@ -64,11 +64,12 @@ export const startApp=()=>{
               id: 'tabs',
               options: {
                 statusBar: {
-                  visible: false,
+                //  visible: false,
+                
                   backgroundColor:colors.primary,
-                  drawBehind: false,
-                              style:  'dark',
-                              visible: false,
+                  drawBehind: true,
+                              style:  'light',
+                              visible: true,
                 },
                 topbar: {
                  // hideOnScroll: true,
@@ -89,6 +90,14 @@ export const startApp=()=>{
                 {
                   stack: {
                     id: 'tab1',
+                    options:{
+                      bottomTab:{
+                        selectedIconColor: colors.primary,
+                        selectedTextColor:colors.primary,
+                        textColor:colors.bottomTabColor,
+                        iconColor:colors.bottomTabColor
+                      }
+                    },
                     children: [
                       {
                         
@@ -97,10 +106,12 @@ export const startApp=()=>{
                           options: {
                            
                               statusBar: {
-                                visible: false,
+                               // visible: false,
+                               backgroundColor:colors.primary,
+                               
                                 drawBehind: false,
-                              style:  'dark',
-                              visible: false,
+                              style:  'light',
+                              visible: true,
                               },
                             topBar: {
                              // hideOnScroll: true,
@@ -136,9 +147,8 @@ export const startApp=()=>{
                               icon: sources[0],
                               iconColor:colors.bottomTabColor,
                              
-                             
+                              selectedIconColor: colors.primary,
                               selectedTextColor: colors.primary,
-                              selectedIconColor: colors.primary
                             }
                           }
                         },
@@ -149,6 +159,14 @@ export const startApp=()=>{
                 {
                   stack: {
                     id: 'tab2',
+                    options:{
+                      bottomTab:{
+                        selectedIconColor: colors.primary,
+                        selectedTextColor:colors.primary,
+                        textColor:colors.bottomTabColor,
+                        iconColor:colors.bottomTabColor
+                      }
+                    },
                     children: [
                       {
                         component: {
@@ -156,11 +174,11 @@ export const startApp=()=>{
                           options: {
                            
                               statusBar: {
-                                visible: false,
+                               // visible: false,
                                 backgroundColor:colors.primary,
                                 drawBehind: false,
-                              style:  'dark',
-                              visible: false,
+                              style:  'light',
+                              visible: true,
                               },
                             topBar: {
                              // hideOnScroll: true,
@@ -206,6 +224,14 @@ export const startApp=()=>{
                 {
                 stack: {
                   id: 'notifications',
+                  options:{
+                    bottomTab:{
+                      selectedIconColor: colors.primary,
+                      selectedTextColor:colors.primary,
+                      textColor:colors.bottomTabColor,
+                      iconColor:colors.bottomTabColor
+                    }
+                  },
                   children: [
                     {
                       
@@ -214,11 +240,11 @@ export const startApp=()=>{
                         options: {
                          
                             statusBar: {
-                              visible: false,
+                            //  visible: false,
                               backgroundColor:colors.primary,
                               drawBehind: false,
-                              style:  'dark',
-                              visible: false,
+                              style:  'light',
+                              visible: true,
                             },
                           topBar: {
                             
@@ -267,6 +293,14 @@ export const startApp=()=>{
               {
                 stack: {
                   id: 'account',
+                  options:{
+                    bottomTab:{
+                      selectedIconColor: colors.primary,
+                      selectedTextColor:colors.primary,
+                      textColor:colors.bottomTabColor,
+                      iconColor:colors.bottomTabColor
+                    }
+                  },
                   children: [
                     {
                       
@@ -278,11 +312,11 @@ export const startApp=()=>{
                              
                               backgroundColor:colors.primary,
                               drawBehind: false,
-                              style:  'dark',
-                              visible: false,
+                              style:  'light',
+                              visible: true,
                             },
                           topBar: {
-                             style:  'dark',
+                             style:  'light',
                            // hideOnScroll: true,
                             buttonColor: colors.buttonEnabledColor,
                             background:{

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Animated,ActivityIndicator,Alert,Dimensions,StatusBar, Picker,Button,Image, Platform, StyleSheet,DatePickerIOS, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
+import { Animated,UIManager,findNodeHandle,ScrollView,TouchableNativeFeedback,TouchableWithoutFeedback,ActivityIndicator,Alert,Dimensions,StatusBar, Picker,Button,Image, Platform, StyleSheet,DatePickerIOS,Modal, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
 import PushNotification from '@aws-amplify/pushnotification';
 
 import { PushNotificationIOS } from 'react-native';
@@ -18,6 +18,9 @@ import {Navigation} from 'react-native-navigation';
 import ImagePicker from 'react-native-image-picker';
 import {colors} from '../Utils/theme';
 import {CATEGORIES} from '../Utils/avatarPrefix';
+import AndroidPicker from '../components/AndroidPicker';
+import Another from '../components/another';
+
 const AnimatedListView = Animated.createAnimatedComponent(FlatList);
 const { width, height } = Dimensions.get('window');
 
@@ -37,27 +40,39 @@ const { width, height } = Dimensions.get('window');
   
       {
         id: 'categorized',
-        text: 'Done'
+        text: 'Done',
+        color: colors.buttonEnabledColor, 
       },
       {
         id: 'cancel',
-        text: 'Cancel'
+        text: 'Cancel',
+        color: colors.buttonEnabledColor, 
       }
     ]
   }
   getLongScreenButtons=(sources)=>{
+   const key =Platform.OS==='android'?'icon':'iconText';
+   const value=Platform.OS==='android'?sources[1]:'Cancel';
+
     return  [
       {
         id: 'delete',
-        icon: sources[0]
+        icon: sources[0],
+        color: colors.buttonEnabledColor, 
+        buttonAlign:'right'
       },
       {
         id: 'categorize',
-        text: 'Categorize'
+        text: 'Categorize',
+        color: colors.buttonEnabledColor, 
+        buttonAlign:'right'
       },
       {
         id: 'cancel',
-        text: 'Cancel'
+        text: 'Cancel',
+        [key]:value,
+        color: colors.buttonEnabledColor, 
+        buttonAlign:'left'
       }
     ];
 
@@ -262,11 +277,11 @@ const { width, height } = Dimensions.get('window');
         },
         options: {
           statusBar: {
-            visible: false,
+          //  visible: false,
             backgroundColor:colors.primary,
             drawBehind: false,
-                        style:  'dark',
-                        visible: false,
+                        style:  'light',
+                        visible: true,
           },
           topBar: {
            // hideOnScroll: true,
@@ -404,7 +419,8 @@ handleCancelSelection=()=>{
       },
       rightButtons: [
         
-      ]
+      ],
+      leftButtons:[]
     }
   });
 }
@@ -412,7 +428,7 @@ handleCancelSelection=()=>{
 showTopBarButtons=(buttonFunction )=>{
   Promise.all([
     Icon.getImageSource(Platform.OS === 'android' ? "md-trash" : "ios-trash", 25),
-   
+    Icon.getImageSource(Platform.OS === 'android' ? "md-close" : "ios-close", 25),
   ]).then(sources => {
     Navigation.mergeOptions(this.props.componentId, {
       topBar: {
@@ -420,15 +436,28 @@ showTopBarButtons=(buttonFunction )=>{
           text: '',
           
         },
-        backButton: {
-          color: colors.buttonEnabledColor, // For back button text
-        },
+       
         buttonColor: colors.buttonEnabledColor,
-        rightButtons: buttonFunction(sources)
+        rightButtons: Platform.OS==='android'?this.getRightButtonsForAndroid(buttonFunction(sources)):buttonFunction(sources),
+        leftButtons:  Platform.OS==='android'?this.getLeftButtonsForAndroid(buttonFunction(sources)):[]
       }
     });
   
 });
+}
+
+getLeftButtonsForAndroid=(buttons)=>{
+  const rightButtons=buttons.filter(button=>{
+    return (button.buttonAlign==='left')
+  })
+
+return rightButtons;
+}
+getRightButtonsForAndroid=(buttons)=>{
+  const rightButtons=buttons.filter(button=>{
+    return (button.buttonAlign!=='left')
+  });
+  return rightButtons;
 }
 addLongPressButtons=()=>{
 
@@ -480,20 +509,29 @@ addReceiptFromCamera=()=>{
 updateCategory=(category)=>{
 this.setState({pickerCategory:category});
 }
+
+handleCategorySelAndroid=(category)=>{
+  this.updateCategory(category);
+  if('Cancel'!==category){
+  this.handleCateogrizationComplete(category);
+  }else {
+    this.setState({showPicker:false});
+  }
+}
 /* GET PICKER OF CATEGORIES */
 _getPicker=()=>{
- 
+ if(Platform.OS==='ios'){
   const categories=CATEGORIES.map((category,index)=>{
     return (<Picker.Item key={index} label={category} value={category} />)
    });
   
 return this.state.showPicker?
  (  <View
-    style={{ bottom:0,right:0, position:'absolute',height: 200, width:width,zIndex:999,backgroundColor:"#efefef" }}
+    style={{ bottom:0,right:0, position:'absolute',height: 200, width:width,zIndex:999,backgroundColor:'#fff' }}
       >
      <Picker
-    
-     mode='dialog'
+     style={{justifyContent:"center"}}
+     mode='dropdown'
 selectedValue={this.state.pickerCategory}
 
 onValueChange={(itemValue, itemIndex) => this.updateCategory( itemValue)}>
@@ -503,11 +541,39 @@ categories
 
 </Picker>
 </View>):null;
+ }
+  else if(Platform.OS==='android'){
+   let categories=[...CATEGORIES,'Cancel'];
 
+   return ( <AndroidPicker
+    items={categories}
+    showPicker={this.state.showPicker}
+    onSelect={this.handleCategorySelAndroid}
+    onClose={()=>{
+      
+      this.setState({showPicker:false})}}
+  /> );
+
+  }
+
+}
+selectCategoryFromPopUp=(category)=>{
+  if("Cancel"!==category){
+  this.updateCategory(category);
+  }
+  this.setState({showPicker:false});
+
+}
+onError =()=> {
+  console.log('Popup Error')
+}
+onPopUpPress=(eventName, index) => {
+  console.log(eventName);
+  console.log(index);
 }
 
 /* Handles the completion of categorization of receipts */
-handleCateogrizationComplete=()=>{
+handleCateogrizationComplete=(category)=>{
   this.setState({showPicker:false});
 
 
@@ -526,7 +592,8 @@ handleCateogrizationComplete=()=>{
 
   }
   if(categorizableReceipts.length>0){
-    this.props.categorizeReceipts(categorizableReceipts,this.state.pickerCategory);
+
+    this.props.categorizeReceipts(categorizableReceipts,category!==undefined?category:this.state.pickerCategory);
   }
   this.setState({swipedReceipt:null});
   this.updateCheckedState(this.props.receipts);
@@ -539,7 +606,8 @@ categorizeReceipts=()=>{
     showPicker:true
   });
 // CHANGE LEFT BUTTONS TO SHOW SELECT OPTION
-this.showTopBarButtons(this.getCategorizeButtons);
+Platform.OS==='ios'?
+this.showTopBarButtons(this.getCategorizeButtons):null;
 
   
 
@@ -676,6 +744,7 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
 
   render() {
     
+   
     if(this.props.isReceiptDeleted){
      // this.updateCheckedState(this.props.receipts);
       if(this.state.didScreenAppear){this.props.resetUIState();
@@ -695,13 +764,14 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
     return (
       
       <View style={styles.fill}>
+  
      {Platform.OS==='ios'?<StatusBar barStyle="light-content" />:null}
 
        {/* <Button title="sign out" onPress={this.signOut}/> */}
       <Animated.View style={styles.receiptList} >
         <AnimatedListView
          data={this.props.receipts}
-         extraData={this.state}
+         extraData={this.state.isChecked}
          keyExtractor={this._keyExtractor}
          onRefresh={() => this.onRefresh()}
          refreshing={this.state.isFetching}
@@ -763,14 +833,14 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
         offsetY={20}
         offsetX={20}
         style={styles.actionButton} buttonColor={colors.primary}>
-          <ActionButton.Item buttonColor={colors.primary} title="Take Receipt Picture" onPress={() => {
+          <ActionButton.Item buttonColor={colors.primary} title="Take Picture" onPress={() => {
            // this.props.openModal();
             this.addReceiptFromCamera();
           
           }}>
             <Icon    name={Platform.OS === 'android' ? 'md-camera' : 'ios-camera'} style={styles.actionButtonIcon} />
           </ActionButton.Item>
-          <ActionButton.Item buttonColor={colors.primary} title="Upload Receipt from Gallery" onPress={() => {
+          <ActionButton.Item buttonColor={colors.primary} title="Upload from Gallery" onPress={() => {
             this.props.openModal();
             showAddReceipt();
           
@@ -781,7 +851,7 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
             <Icon name="md-trash" style={styles.actionButtonIcon} />
           </ActionButton.Item> */}
         </ActionButton>
-        {this._getPicker()}
+        { this.state.showPicker? this._getPicker():null}
         {this.props.isLoading?<View style={styles.loading}>
       <ActivityIndicator size='large' />
     </View>:null

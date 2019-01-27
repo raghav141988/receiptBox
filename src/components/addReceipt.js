@@ -18,11 +18,11 @@ export const showAddReceipt=(receipt,isEdit)=>{
           options:{
         
             statusBar: {
-              visible: false,
+              //visible: false,
               backgroundColor:colors.primary,
               drawBehind: false,
-                          style:  'dark',
-                          visible: false,
+              style:  'light',
+                          visible: true,
             },
             topBar: {
               
@@ -95,11 +95,11 @@ export const showAddReceiptFromCamera=(cameraResp)=>{
           
           topBar: {
             statusBar: {
-              visible: false,
+              
               backgroundColor:colors.primary,
               drawBehind: false,
-                          style:  'dark',
-                          visible: false,
+                          style:  'light',
+                       
             },
      // hideOnScroll: true,
      visible:true,

@@ -19,7 +19,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/storage/dynamo59694b27-cloudformation-template.json",
 				"logicalId": "storagedynamo59694b27"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.970Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.278Z",
 			"output": {
 				"PartitionKeyName": "userSub",
 				"Region": "us-east-1",
@@ -36,7 +36,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/storage/s3-cloudformation-template.json",
 				"logicalId": "storagereceiptManagerStorage"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.970Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.279Z",
 			"output": {
 				"BucketName": "receiptmanagerstorage",
 				"Region": "us-east-1"
@@ -50,7 +50,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/storage/receiptManagerUserDetailDB-cloudformation-template.json",
 				"logicalId": "storagereceiptManagerUserDetailDB"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.977Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.289Z",
 			"output": {
 				"PartitionKeyName": "userId",
 				"Region": "us-east-1",
@@ -83,7 +83,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/function/receiptmanager510c63ca-cloudformation-template.json",
 				"logicalId": "functionreceiptmanager510c63ca"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.977Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.289Z",
 			"output": {
 				"Region": "us-east-1",
 				"Arn": "arn:aws:lambda:us-east-1:175709978647:function:receiptmanager510c63ca",
@@ -112,7 +112,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/function/receiptFunction-cloudformation-template.json",
 				"logicalId": "functionreceiptFunction"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.977Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.289Z",
 			"output": {
 				"Region": "us-east-1",
 				"Arn": "arn:aws:lambda:us-east-1:175709978647:function:receiptHandler",
@@ -141,7 +141,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/function/userDetail-cloudformation-template.json",
 				"logicalId": "functionuserDetail"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.977Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.289Z",
 			"output": {
 				"Region": "us-east-1",
 				"Arn": "arn:aws:lambda:us-east-1:175709978647:function:UserDetailHandler",
@@ -161,7 +161,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/function/moveReceipts-cloudformation-template.json",
 				"logicalId": "functionmoveReceipts"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.977Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.289Z",
 			"output": {
 				"Region": "us-east-1",
 				"Arn": "arn:aws:lambda:us-east-1:175709978647:function:moveReceiptsHandler",
@@ -181,7 +181,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/function/notificationFunction-cloudformation-template.json",
 				"logicalId": "functionnotificationFunction"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.977Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.289Z",
 			"output": {
 				"Region": "us-east-1",
 				"Arn": "arn:aws:lambda:us-east-1:175709978647:function:notificationHandler",
@@ -198,7 +198,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/auth/cognitofec3a667-cloudformation-template.yml",
 				"logicalId": "authcognitofec3a667"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.973Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.284Z",
 			"output": {
 				"AppClientSecret": "1ajeeic7coc1aetu35a1vke6hqq8tqi2qdi17n5tgepabg8gtqmg",
 				"UserPoolId": "us-east-1_vj7r7vrTw",
@@ -229,7 +229,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/api/api316d17f6-cloudformation-template.json",
 				"logicalId": "apiapi316d17f6"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.974Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.285Z",
 			"output": {
 				"ApiName": "api316d17f6",
 				"RootUrl": "https://1dwlpp8jak.execute-api.us-east-1.amazonaws.com/Prod"
@@ -253,7 +253,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/api/receiptsAPI-cloudformation-template.json",
 				"logicalId": "apireceiptsAPI"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.974Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.286Z",
 			"output": {
 				"ApiName": "receiptsAPI",
 				"RootUrl": "https://rj6hszkok1.execute-api.us-east-1.amazonaws.com/Prod"
@@ -277,7 +277,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/api/userDetailsApi-cloudformation-template.json",
 				"logicalId": "apiuserDetailsApi"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.977Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.289Z",
 			"output": {
 				"ApiName": "userDetailsApi",
 				"RootUrl": "https://6qkeej3v58.execute-api.us-east-1.amazonaws.com/Prod"
@@ -301,7 +301,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/api/moveReceiptsAPI-cloudformation-template.json",
 				"logicalId": "apimoveReceiptsAPI"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.977Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.289Z",
 			"output": {
 				"ApiName": "moveReceiptsAPI",
 				"RootUrl": "https://2k9dg8fru2.execute-api.us-east-1.amazonaws.com/Prod"
@@ -325,7 +325,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/api/notificationAPI-cloudformation-template.json",
 				"logicalId": "apinotificationAPI"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.977Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.289Z",
 			"output": {
 				"ApiName": "notificationAPI",
 				"RootUrl": "https://qalazkdr95.execute-api.us-east-1.amazonaws.com/Prod"
@@ -341,7 +341,7 @@
 				"s3TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/analytics/pinpoint-cloudformation-template.json",
 				"logicalId": "analyticsreceiptmanager"
 			},
-			"lastPushTimeStamp": "2019-01-21T23:48:35.976Z",
+			"lastPushTimeStamp": "2019-01-27T07:02:08.288Z",
 			"output": {
 				"appName": "receiptmanager",
 				"Region": "us-east-1",
@@ -369,6 +369,17 @@
 					"LastModifiedDate": "2018-12-31T18:55:04.994Z",
 					"Platform": "APNS",
 					"Version": 21
+				},
+				"FCM": {
+					"ApplicationId": "310e913ae3d34137933d12d8e5908116",
+					"CreationDate": "2019-01-27T06:48:12.161Z",
+					"Enabled": true,
+					"HasCredential": true,
+					"Id": "gcm",
+					"IsArchived": false,
+					"LastModifiedDate": "2019-01-27T17:15:36.847Z",
+					"Platform": "GCM",
+					"Version": 5
 				}
 			}
 		}

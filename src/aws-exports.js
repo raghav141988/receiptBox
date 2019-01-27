@@ -13,6 +13,7 @@ const awsmobile =  {
             "region": "us-east-1"
         }
     ],
+    "senderID":"336961904741",
     "aws_user_files_s3_bucket": "receiptmanagerstorage",
     "aws_user_files_s3_bucket_region": "us-east-1",
     "aws_cognito_identity_pool_id": "us-east-1:d690fb68-a670-4caf-aacf-ef935dcf9e4a",

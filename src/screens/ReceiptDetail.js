@@ -9,7 +9,18 @@ import { modalOpen,resetUIState} from '../store/actions/ui';
 import {showAddReceipt} from '../components/addReceipt';
 import { withAuthenticator } from 'aws-amplify-react-native';
 import  {  Auth } from 'aws-amplify';
+import Share, {ShareSheet, Button} from 'react-native-share';
+import ShareSheetComponent from '../components/ShareSheetComponent';
  class ReceiptDetail extends Component {
+
+  state={
+    showShare:false,
+  }
+  onCancel=()=> {
+    console.log("CANCEL")
+    this.setState({showShare:false});
+  }
+
 
     constructor(props) {
         super(props);
@@ -24,7 +35,13 @@ import  {  Auth } from 'aws-amplify';
         this.deleteReceipt();
       }
       else if(buttonId==='share'){
-        this.shareReceipt();
+       if(Platform.OS==='ios'){
+         this.shareReceipt();
+       }
+         else {
+          this.setState({showShare:true});
+          this.shareReceipt();
+        }
       }
     }
     /* Edits the given receipt */
@@ -108,6 +125,11 @@ import  {  Auth } from 'aws-amplify';
       <ActivityIndicator size='large' />
     </View>:null
         }
+<ShareSheetComponent
+sharedReceipt={this.props.sharedReceipt}
+onCancel={this.onCancel}
+visible={(this.state.showShare&& this.props.sharedReceipt!==null)}
+/>
      </View>
     )
   }
@@ -116,7 +138,8 @@ const mapStateToProps = state => {
     return {
         receiptDetail: state.receipts.receiptDetail,
         isReceiptDeleted:state.ui.isReceiptDeleted,
-        isLoading:state.ui.isLoading
+        isLoading:state.ui.isLoading,
+        sharedReceipt:state.receipts.sharedReceipt
     };
   };
   

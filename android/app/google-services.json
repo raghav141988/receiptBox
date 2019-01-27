@@ -1,58 +1,27 @@
 {
   "project_info": {
-    "project_number": "447432362834",
-    "firebase_url": "https://receiptmanager-c96dc.firebaseio.com",
-    "project_id": "receiptmanager-c96dc",
-    "storage_bucket": "receiptmanager-c96dc.appspot.com"
+    "project_number": "336961904741",
+    "firebase_url": "https://receiptbox-9b489.firebaseio.com",
+    "project_id": "receiptbox-9b489",
+    "storage_bucket": "receiptbox-9b489.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:447432362834:android:a1202db2ccba9472",
-        "android_client_info": {
-          "package_name": "com.lifemadeeasy.receiptmanager"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "447432362834-inlhtj0gsnlrmu51vl9p3tg0lov9kk08.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCi3KygiWYNghEcawgdEXkZpR6gUdSbIz4"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:447432362834:android:9925ea2c8b82bdf6",
+        "mobilesdk_app_id": "1:336961904741:android:9925ea2c8b82bdf6",
         "android_client_info": {
           "package_name": "com.receiptorganizer"
         }
       },
       "oauth_client": [
         {
-          "client_id": "447432362834-inlhtj0gsnlrmu51vl9p3tg0lov9kk08.apps.googleusercontent.com",
+          "client_id": "336961904741-poc64cetr63d8h8pb2np5tl3tlqketoc.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCi3KygiWYNghEcawgdEXkZpR6gUdSbIz4"
+          "current_key": "AIzaSyA4wxQpZTdvPIbRSz7X341s_5lTcEF2FBA"
         }
       ],
       "services": {

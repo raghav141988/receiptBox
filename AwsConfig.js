@@ -15,26 +15,18 @@ export const configureAmplify=(store)=>{
     Amplify.configure(amplify);
 /* CONFIGURE ANALYTICS */
 
-const analyticsConfig = {
-  AWSPinpoint: {
-        // Amazon Pinpoint App Client ID
-        appId: '310e913ae3d34137933d12d8e5908116',
-        // Amazon service region
-        region: 'us-east-1',
-        mandatorySignIn: false,
-  }
-}
-Analytics.configure(analyticsConfig);
+
+Analytics.configure(amplify);
 PushNotification.configure(amplify);
 
 console.log('push notification config');
-console.log(PushNotification);
+console.log(PushNotificationIOS);
 PushNotificationIOS.addEventListener('registrationError', console.log)
 
 
 // get the registration token
 PushNotification.onRegister((token) => {
-  
+  Alert.alert(token);
   console.log('in app registration'+ token);
  // SAVE token
 

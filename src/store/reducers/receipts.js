@@ -11,6 +11,7 @@ import {
   ADD_UPDATE_RECEIPT_SUCCESS,
   STORE_UNKNOWN_RECEIPTS,
   MARK_INBOX_SELECTION,
+  STORE_SHARE_URL,
   UPDATE_CATEGORIZED_RECEIPTS
  
 
@@ -21,6 +22,7 @@ const initialState = {
   myReceipts: [],
   latestReceipts:[],
   isReceiptFolder:true,
+  sharedReceipt:null,
   unknownReceipts:[],
   receiptDetail:{
     uri:null,
@@ -111,7 +113,13 @@ const reducer = (state = initialState, action) => {
           receipt:null
         }
       }
-     
+     case STORE_SHARE_URL:
+     return {
+       ...state,
+       sharedReceipt:{
+        ...action.sharedReceipt
+       }
+     }
       case MOVE_TO_MY_RECEIPTS_SUCCESS:
       return {
         ...state,

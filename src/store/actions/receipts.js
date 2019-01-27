@@ -2,6 +2,7 @@ import { ADD_DEVICE, STORE_RECEIPT,DELETE_RECEIPTS,FETCH_LATEST_RECEIPTS,
     FETCH_MY_RECEIPTS,RECEIPT_DETAIL,SEARCH_RECEIPTS,TAG_RECEIPT,
     SHARE_RECEIPT,DOWNLOAD_RECEIPT,MARK_INBOX_SELECTION,FETCH_UNKNOWN_RECEIPTS,RECEIPT_STORE_SUCCESS,NOTIFICATION_OPENED,
     STORE_DEVICE_TOKEN,RECEIPT_DETAIL_RESET,REMOVE_RECEIPTS,STORE_LATEST_RECEIPTS,STORE_UNKNOWN_RECEIPTS,STORE_MY_RECEIPTS,ADD_UPDATE_RECEIPT_SUCCESS, RECEIPT_DETAIL_SUCCESS, UNKNOWN_TO_MY_RECEIPTS_SUCCESS,MOVE_TO_MY_RECEIPTS_SUCCESS,
+    STORE_SHARE_URL,
     STORE_NOTIFICATION,
     UPDATE_CATEGORIZED_RECEIPTS,
     FETCH_NOTIFICATIONS
@@ -16,11 +17,13 @@ import mime from 'mime-types';
 import {storeCognitoUser,storeReceiptUser} from './userDetailsAction';
 import { API, Auth,Storage } from 'aws-amplify';
 //import Base64 from '../../Utils/Base64';
-import { Share,Alert } from 'react-native';
+import { Share,Alert,Platform } from 'react-native';
 import base64 from 'base64-js'
 import constants from '../../Utils/constants';
 
 
+
+//import {DIRS} from 'rn-fetch-blob';
 
 const storeUser = async (dispatch) => {
     try {
@@ -434,49 +437,120 @@ export const tagReceipt = (receipt,tags) => {
     };
 };
 
+export const shareWithIOS=async (fileUrl, type,dispatch,title) =>{
+    let filePath = null;
+    
+    let extension = mime.extension(type);
+    if(extension==='false'|| extension===false){
+        extension='html';
+        type="text/html";
+    }
+    let file_url_length = fileUrl.length;
+    const configOptions = {
+      fileCache: true,
+      path:
+      RNFetchBlob.fs.dirs.DocumentDir + ('/'+title+'.'+extension) // no difference when using jpeg / jpg / png /
+    };
+    RNFetchBlob.config(configOptions)
+      .fetch('GET', fileUrl)
+      .then(async resp => {
+          console.log(resp);
+        filePath = resp.path();
+        console.log(filePath);
+        let options = {
+          type: type,
+          message: title,
+          url:  (Platform.OS === 'android' ? 'file://' + filePath:filePath)
+        };
+        console.log(options);
+
+        if(Platform.OS==='ios')
+        {
+        await Share.share(options);
+        // remove the image or pdf from device's storage
+         RNFetchBlob.fs.unlink(filePath)
+        .then(() => {console.log('unlinked successfully')})
+        .catch((err) => { 'unlink error' });
+        }
+        else { dispatch(storeSharedURL(options))
+            setTimeout(() => {
+                RNFetchBlob.fs.unlink(filePath)
+        .then(() => {console.log('unlinked successfully')})
+        .catch((err) => { 'unlink error' });
+              
+              },60000);
+        };
+      });
+      
+  }
+
 
 export const shareReceipt = (receipt) => {
     return async dispatch=> {
-        const result=  await Storage.get(receipt.receiptKey, {level: 'private',
-            download: true,
-         
-           
-          });
-          //CONVERT 
-        
-         let content={};
-        // console.log(result.Body);
-         console.log(result.ContentType);
-        if(result.ContentType.includes(constants.TEXT_HTML)){
-           const stringContent= pack(result.Body);
-            content = {
-            // message: ICON_PLUS_BASE64,
-             title: 'Share receipt',
-             url: stringContent,
-           };
-        }else {
+        console.log(Platform.OS);
+    if( Platform.OS==='android'){
+/*
             const  bufferData= base64.fromByteArray(result.Body);
-        
-         const shareContent='data:'+receipt.contentType+';base64,'+bufferData;
+            let contentType=receipt.contentType;
+            if(contentType==='false'|| contentType===false){
+                contentType='text/html';
+            }
+         const shareContent='data:'+contentType+';base64,'+bufferData;
         // consol
             content = {
-                // message: ICON_PLUS_BASE64,
+               //  message: shareContent,
                  title: 'Share receipt',
+                 type:contentType,
                  url: shareContent,
                };
-        }
+        
       
         //console.log(content);
          
 
           const option = { dialogTitle: 'Share receipt' };
           Share.share(content, option);
-          
-          
+          */
+         const result=  await Storage.get(receipt.receiptKey, {level: 'private'
+       
+        });
+        //CONVERT 
+      
+       let content={};
+     
+       console.log(result.ContentType);
+      
+      shareWithIOS(result,receipt.contentType,dispatch,receipt.title);
+
+    }
+    else {
+        const result=  await Storage.get(receipt.receiptKey, {level: 'private'
+       
+          });
+          //CONVERT 
+        
+         let content={};
+       
+         console.log(result.ContentType);
+      
+         shareWithIOS(result,receipt.contentType);
+    }
+       
+     
+
+       
+
 
        
     };
 };
+export const storeSharedURL =(shareDetails)=>{
+    return {
+        type: STORE_SHARE_URL,
+        sharedReceipt:shareDetails,
+       
+    }  
+}
 export const moveReceiptSuccess =(receipts)=>{
     return {
         type: MOVE_TO_MY_RECEIPTS_SUCCESS,

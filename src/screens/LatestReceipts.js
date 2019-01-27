@@ -149,11 +149,11 @@ const buttons = ['Receipts', 'Others']
         },
         options: {
           statusBar: {
-            visible: false,
+
             backgroundColor:colors.primary,
             drawBehind: false,
-                        style:  'dark',
-                        visible: false,
+                        style:  'light',
+                        visible: true,
           },
           topBar: {
             //hideOnScroll: true,

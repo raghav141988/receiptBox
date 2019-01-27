@@ -211,6 +211,17 @@
 					"LastModifiedDate": "2018-12-31T18:55:04.994Z",
 					"Platform": "APNS",
 					"Version": 21
+				},
+				"FCM": {
+					"ApplicationId": "310e913ae3d34137933d12d8e5908116",
+					"CreationDate": "2019-01-27T06:48:12.161Z",
+					"Enabled": true,
+					"HasCredential": true,
+					"Id": "gcm",
+					"IsArchived": false,
+					"LastModifiedDate": "2019-01-27T17:15:36.847Z",
+					"Platform": "GCM",
+					"Version": 5
 				}
 			}
 		}
