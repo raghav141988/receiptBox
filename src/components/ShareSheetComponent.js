@@ -55,7 +55,7 @@ class ShareSheetComponent extends Component {
 
    
       render(){
-        console.log(this.props.sharedReceipt);
+        
   return (
     <ShareSheet visible={this.props.visible} onCancel={this.props.onCancel}>
           
@@ -63,18 +63,20 @@ class ShareSheetComponent extends Component {
                   onPress={()=>{
                     this.props.onCancel();
               setTimeout(() => {
-                Share.shareSingle(Object.assign(shareOptions, {
+                Share.shareSingle({
+                    ...this.props.sharedReceipt,
                   "social": "whatsapp"
-                }));
+                });
               },300);
             }}>Whatsapp</Button>
           <Button iconSrc={{ uri: GOOGLE_PLUS_ICON }}
                   onPress={()=>{
                     this.props.onCancel();
               setTimeout(() => {
-                Share.shareSingle(Object.assign(shareOptions, {
+                Share.shareSingle( {
+                    ...this.props.sharedReceipt,
                   "social": "googleplus"
-                }));
+                });
               },300);
             }}>Google +</Button>
           <Button iconSrc={{ uri: EMAIL_ICON }}
@@ -88,7 +90,7 @@ class ShareSheetComponent extends Component {
               },300);
             }}>Email</Button>
          
-          <Button
+          {/* <Button
             iconSrc={{ uri: CLIPBOARD_ICON }}
             onPress={()=>{
                 this.props.onCancel();
@@ -102,7 +104,7 @@ class ShareSheetComponent extends Component {
                   }
                 }
               },300);
-            }}>Copy Link</Button>
+            }}>Copy Link</Button> */}
          
         </ShareSheet>
   )

@@ -16,6 +16,7 @@ const receiptItem = props =>{
  const avatarDetails =getAvatarPrefix(props.receiptItem.category);
 
     return (
+
         <Swipeout 
         autoClose
        
@@ -25,12 +26,13 @@ const receiptItem = props =>{
           
           leftAvatar={(<Avatar
   size="medium"
+  containerStyle={0.1}
   title={avatarDetails.text}
   placeholderStyle={{backgroundColor:avatarDetails.color}}
-  
+  avatarStyle={{opacity:0.7}}
   rounded
  // onPress={() => console.log("Works!")}
-  activeOpacity={0.7}
+  ={0.3}
 />)
         }
 
@@ -61,12 +63,12 @@ const receiptItem = props =>{
              subtitle={(<View style={styles.dateCategoryStyle}>
                  
                  <MainText>
-                   <HeadingText style={{ fontSize: 14, color:'#86939e'}}>{props.receiptItem.category}</HeadingText>
+                   <HeadingText style={{ fontSize: 14, color:'#717171'}}>{props.receiptItem.category}</HeadingText>
                  </MainText>
                 
                
                  <MainText >
-                   <ItalicHeadingText style={{ fontSize: 12, color:'#86939e'}} >
+                   <ItalicHeadingText style={{ fontSize: 12, color:'#717171'}} >
                    <Moment format="DD-MMM-YYYY" element={Text} >{props.receiptItem.createdDate}</Moment>
                    </ItalicHeadingText>
                  </MainText>

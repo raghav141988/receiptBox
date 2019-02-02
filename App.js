@@ -7,7 +7,7 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View,Button} from 'react-native';
+import {Platform, StyleSheet, Text, View,Button,Alert} from 'react-native';
 import {configureAmplify} from './AwsConfig';
 import { withAuthenticator } from './src/screens/Authentication/Auth/index';
 import Amplify, { API, Auth,Storage } from 'aws-amplify';
@@ -410,7 +410,7 @@ Navigation.events().registerAppLaunchedListener(() => {
   }
   constructor(props){
     super(props);
-   
+    
 
   }
 componentDidMount(){

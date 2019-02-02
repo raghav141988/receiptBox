@@ -144,7 +144,7 @@ android {
 dependencies {
    
     implementation project(':amazon-cognito-identity-js')
-     compile project(':@aws-amplify_pushnotification')
+     implementation project(':@aws-amplify_pushnotification')
     implementation project(':react-native-share')
     implementation project(':react-native-image-picker')
     implementation project(':react-native-pdf')
@@ -157,7 +157,10 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation project(':react-native-navigation')
      implementation 'com.google.firebase:firebase-core:12.0.1'
-     implementation 'com.google.firebase:firebase-messaging:12.0.1'
+    
+     implementation ('com.google.firebase:firebase-messaging:12.0.1'){
+        force = true
+    }
      implementation 'com.android.support:design:27.1.0'
       implementation project(':amazon-cognito-identity-js')
       

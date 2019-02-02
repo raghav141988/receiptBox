@@ -70,6 +70,9 @@ export default class Authenticator extends React.Component {
     componentDidMount() {
         this._isMounted = true;
         this.checkUser();
+       
+            console.log('with high authenticator');
+    
     }
 
     componentWillUnmount() {

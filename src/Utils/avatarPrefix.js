@@ -41,7 +41,7 @@ export const getAvatarPrefix=(category)=>{
         case FOOD_CATEGORY:
         return {
            text:'F',
-           color:'#9c27b0'
+           color:'#4caf50'
         }
         case BILLS_CATEGORY:
         return {
@@ -51,32 +51,32 @@ export const getAvatarPrefix=(category)=>{
         case AUTO_TRANSPORT_CATEGORY:
         return {
             text:'AT',
-            color:'#3f51b5'
+            color:'#5c6bc0'
         }
         case INTERNET_CATEGORY:
         return {
             text:'I',
-            color:'#3f51b5'
+            color:'#5c6bc0'
         }
         case FUEL_CATEGORY:
         return {
             text:'F',
-            color:'#00796b'
+            color:'#4caf50'
         }
         case SHOPPING_CATEGORY:
         return {
             text:'S',
-            color:'#00796b'
+            color:'#4caf50'
         }
         case ELECTRONINCS_CATEGORY:
         return {
             text:'E',
-            color:'#00796b'
+            color:'#4caf50'
         }
         case HOUSEHOLD_CATEGORY:
         return {
             text:'H',
-            color:'#00796b'
+            color:'#4caf50'
         }
         case HEALTH_CATEGORY:
         return {
@@ -87,7 +87,7 @@ export const getAvatarPrefix=(category)=>{
         case ENTERTAINMENT_CATEGORY:
         return {
             text:'E',
-            color:'#00796b'
+            color:'#4caf50'
         }
         case PURCHASES_CATEGORY:
         return {
@@ -97,18 +97,18 @@ export const getAvatarPrefix=(category)=>{
         case TRAVEL_CATEGORY:
         return {
             text:'T',
-            color:'#3f51b5'
+            color:'#5c6bc0'
         }
         case GROCERY_CATEGORY:
         return {
             text:'G',
-            color:'#9c27b0'
+            color:'#4caf50'
         }
 
         case SHOWS_AND_MOVIES_CATEGORY:
         return {
             text:'SM',
-            color:'#00796b'
+            color:'#4caf50'
         }
         case MISCELLANEOUS_CATEGORY:
         return {

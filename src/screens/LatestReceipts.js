@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Animated,ActivityIndicator,Picker, Alert,Button,Image, Dimensions,Platform, StyleSheet,DatePickerIOS, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
+import { Animated,RefreshControl,ActivityIndicator,Picker, Alert,Button,Image, Dimensions,Platform, StyleSheet,DatePickerIOS, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
 
 import { withAuthenticator } from 'aws-amplify-react-native';
 
@@ -603,8 +603,12 @@ updateIndex= (selectedIndex) =>{
  data={this.props.receipts}
  extraData={this.state}
  keyExtractor={this._keyExtractor}
- onRefresh={() => this.onRefresh()}
-  refreshing={this.state.isFetching}
+ refreshControl={<RefreshControl
+  progressBackgroundColor={colors.primary}
+ refreshing={this.state.isFetching}
+ tintColor={colors.primary}
+ onRefresh={this.onRefresh}
+/>}
  onLongPress={()=>{}}
 // ListHeaderComponent={this._getHeaderComponent}
  renderItem={(info) =>{
@@ -671,7 +675,7 @@ updateIndex= (selectedIndex) =>{
         }
         {this._getPicker()}
         {this.props.isLoading?<View style={styles.loading}>
-      <ActivityIndicator size='large' />
+      <ActivityIndicator size="large" color={colors.primary}  />
     </View>:null
         }
       </View>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Animated,UIManager,findNodeHandle,ScrollView,TouchableNativeFeedback,TouchableWithoutFeedback,ActivityIndicator,Alert,Dimensions,StatusBar, Picker,Button,Image, Platform, StyleSheet,DatePickerIOS,Modal, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
+import { Animated,UIManager,RefreshControl,findNodeHandle,ScrollView,TouchableNativeFeedback,TouchableWithoutFeedback,ActivityIndicator,Alert,Dimensions,StatusBar, Picker,Button,Image, Platform, StyleSheet,DatePickerIOS,Modal, View, TouchableOpacity,Text, TextInput,FlatList ,ImageBackground} from 'react-native';
 import PushNotification from '@aws-amplify/pushnotification';
 
 import { PushNotificationIOS } from 'react-native';
@@ -773,8 +773,15 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
          data={this.props.receipts}
          extraData={this.state.isChecked}
          keyExtractor={this._keyExtractor}
-         onRefresh={() => this.onRefresh()}
+         
+         refreshControl={<RefreshControl
+          progressBackgroundColor={colors.primary}
+          tintColor={colors.primary}
          refreshing={this.state.isFetching}
+         onRefresh={this.onRefresh}
+       />}
+
+        
          extraData={this.state}
         // ListHeaderComponent={this._getHeaderComponent}
          renderItem={(info) =>{
@@ -853,7 +860,7 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
         </ActionButton>
         { this.state.showPicker? this._getPicker():null}
         {this.props.isLoading?<View style={styles.loading}>
-      <ActivityIndicator size='large' />
+      <ActivityIndicator size="large" color={colors.primary}  />
     </View>:null
         }
 

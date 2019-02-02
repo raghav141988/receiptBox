@@ -466,13 +466,16 @@ export const shareWithIOS=async (fileUrl, type,dispatch,title) =>{
 
         if(Platform.OS==='ios')
         {
+            dispatch(uiStopLoading());
         await Share.share(options);
         // remove the image or pdf from device's storage
+       
          RNFetchBlob.fs.unlink(filePath)
         .then(() => {console.log('unlinked successfully')})
         .catch((err) => { 'unlink error' });
         }
-        else { dispatch(storeSharedURL(options))
+        else { dispatch(storeSharedURL(options));
+            dispatch(uiStopLoading());
             setTimeout(() => {
                 RNFetchBlob.fs.unlink(filePath)
         .then(() => {console.log('unlinked successfully')})
@@ -487,7 +490,7 @@ export const shareWithIOS=async (fileUrl, type,dispatch,title) =>{
 
 export const shareReceipt = (receipt) => {
     return async dispatch=> {
-        console.log(Platform.OS);
+       
     if( Platform.OS==='android'){
 /*
             const  bufferData= base64.fromByteArray(result.Body);
@@ -524,6 +527,7 @@ export const shareReceipt = (receipt) => {
 
     }
     else {
+        dispatch(uiStartLoading());
         const result=  await Storage.get(receipt.receiptKey, {level: 'private'
        
           });
@@ -533,7 +537,8 @@ export const shareReceipt = (receipt) => {
        
          console.log(result.ContentType);
       
-         shareWithIOS(result,receipt.contentType);
+         shareWithIOS(result,receipt.contentType,dispatch,receipt.title);
+        
     }
        
      

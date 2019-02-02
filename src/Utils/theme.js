@@ -19,7 +19,7 @@ const colors = {
   buttonEnabledColor:'#fff',
   accentColor:'#ff5131',
   primaryTextColor:'#fff',
-  bottomTabColor:'#A9A9A9',
+  bottomTabColor:'#717171',
   buttonDisabledColor:'#e0e0e0',
   secondary: '#8cd5df',
   lightGray: '#e3e3e3',

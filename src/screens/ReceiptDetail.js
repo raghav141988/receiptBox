@@ -11,6 +11,7 @@ import { withAuthenticator } from 'aws-amplify-react-native';
 import  {  Auth } from 'aws-amplify';
 import Share, {ShareSheet, Button} from 'react-native-share';
 import ShareSheetComponent from '../components/ShareSheetComponent';
+import { colors } from '../Utils/theme';
  class ReceiptDetail extends Component {
 
   state={
@@ -122,7 +123,7 @@ import ShareSheetComponent from '../components/ShareSheetComponent';
      <View style={styles.container}>
        {content}  
        {this.props.isLoading?<View style={styles.loading}>
-      <ActivityIndicator size='large' />
+      <ActivityIndicator size="large" color={colors.primary} />
     </View>:null
         }
 <ShareSheetComponent

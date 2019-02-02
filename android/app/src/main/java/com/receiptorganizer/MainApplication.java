@@ -23,7 +23,7 @@ import cl.json.ShareApplication;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainApplication extends NavigationApplication implements ShareApplication,ReactApplication {
+public class MainApplication extends NavigationApplication implements ShareApplication {
 
   @Override
     protected ReactGateway createReactGateway() {
@@ -46,8 +46,9 @@ public class MainApplication extends NavigationApplication implements ShareAppli
         // Add additional packages you require here
         // No need to add RnnPackage and MainReactPackage
         return Arrays.<ReactPackage>asList(
-          new RNPushNotificationPackage(),
+        
            new RNAWSCognitoPackage(),
+           new RNPushNotificationPackage(),
            new VectorIconsPackage(),
            new RNFetchBlobPackage(),
            new RCTPdfView(),
@@ -82,7 +83,7 @@ public class MainApplication extends NavigationApplication implements ShareAppli
             new ImagePickerPackage(),
             new RCTPdfView(),
             new RNFetchBlobPackage(),
-            new RNAWSCognitoPackage(),
+          
             new RNPushNotificationPackage(),
             new VectorIconsPackage()
       );

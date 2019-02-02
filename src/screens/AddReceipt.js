@@ -516,7 +516,7 @@ onPress = {
     
         </ScrollView>
         {this.props.isLoading?<View style={styles.loading}>
-      <ActivityIndicator size='large' />
+      <ActivityIndicator size="large" color={colors.primary}  />
     </View>:null
         }
       </View>)

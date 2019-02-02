@@ -1,7 +1,10 @@
 import  React, { Component } from 'react';
 import {withAuthenticator}from './Authentication/Auth/index';
 import amplifyTheme from './Authentication/AmplifyTheme';
-import {View,Button,Text,Platform, StyleSheet,} from 'react-native';
+import {View,Button,Text,Platform, StyleSheet,Alert} from 'react-native';
+import { PushNotificationIOS } from 'react-native';
+
+import PushNotification from '@aws-amplify/pushnotification';
 
 import { Navigation } from "react-native-navigation";
 import Amplify, {
@@ -371,8 +374,13 @@ export const startApp=()=>{
 }
 
  class LoginScreen extends Component {
+
+  
      constructor(props){
          super(props);
+       
+       
+         
     if(Auth.user!==null && Auth.user!==undefined){
         startApp();
     }

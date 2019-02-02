@@ -12,13 +12,17 @@
  */
 
 import React from 'react';
-import { View,Text,TouchableWithoutFeedback, Keyboard,Platform } from 'react-native';
+import { View,Text,TouchableWithoutFeedback, Keyboard,Platform,Alert } from 'react-native';
 import { Auth, I18n, Logger, JS } from 'aws-amplify';
 import AuthPiece from './AuthPiece';
 import { AmplifyButton, FormField, LinkCell,LinkLeftCell, Header, ErrorRow } from '../AmplifyUI';
 import Icon from 'react-native-vector-icons/dist/Ionicons';
 const logger = new Logger('SignIn');
 import {colors} from '../../../Utils/theme';
+import { PushNotificationIOS } from 'react-native';
+import amplify from '../../../../src/aws-exports';
+import PushNotification from '@aws-amplify/pushnotification';
+
 export default class SignIn extends AuthPiece {
     constructor(props) {
         super(props);
@@ -33,6 +37,9 @@ export default class SignIn extends AuthPiece {
         this.checkContact = this.checkContact.bind(this);
         this.signIn = this.signIn.bind(this);
     }
+componentDidMount() {
+    
+}
 
     signIn() {
         const { username, password } = this.state;

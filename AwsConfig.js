@@ -18,15 +18,15 @@ export const configureAmplify=(store)=>{
 
 Analytics.configure(amplify);
 PushNotification.configure(amplify);
-
+//PushNotification.initializeAndroid();
 console.log('push notification config');
-console.log(PushNotificationIOS);
+console.log(PushNotification);
 PushNotificationIOS.addEventListener('registrationError', console.log)
 
 
 // get the registration token
 PushNotification.onRegister((token) => {
-  Alert.alert(token);
+ 
   console.log('in app registration'+ token);
  // SAVE token
 
