@@ -4,11 +4,13 @@ import receiptReducer from './reducers/receipts';
 import uiReducer from './reducers/ui';
 import notificationReducer from './reducers/notifications';
 import userDetailsReducer from './reducers/user';
+import categoryReducer from './reducers/categories'
 const rootReducer = combineReducers({
     receipts: receiptReducer,
     ui:uiReducer,
     notification:notificationReducer,
-    user:userDetailsReducer
+    user:userDetailsReducer,
+    categories:categoryReducer
 });
 
 let composeEnhancers = compose;

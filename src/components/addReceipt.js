@@ -3,7 +3,7 @@ import {colors} from '../Utils/theme';
 import Icon from 'react-native-vector-icons/dist/Ionicons';
 import {Platform} from 'react-native';
 
-export const showAddReceipt=(receipt,isEdit)=>{
+export const showAddReceipt=(receipt,isEdit,categories)=>{
   Promise.all([
     Icon.getImageSource(Platform.OS === 'android' ? "md-save" : "ios-save", 25,'white')
   
@@ -60,7 +60,8 @@ export const showAddReceipt=(receipt,isEdit)=>{
           name: 'receiptManager.addreceipt-screen',
           passProps: {
             receipt: receipt,
-            isEdit:isEdit
+            isEdit:isEdit,
+            categories:categories
           },
           
           
@@ -73,7 +74,7 @@ export const showAddReceipt=(receipt,isEdit)=>{
 }
 
 
-export const showAddReceiptFromCamera=(cameraResp)=>{
+export const showAddReceiptFromCamera=(cameraResp,categories)=>{
   Promise.all([
     Icon.getImageSource(Platform.OS === 'android' ? "md-save" : "ios-save", 25,'white')
   
@@ -88,8 +89,8 @@ export const showAddReceiptFromCamera=(cameraResp)=>{
         name: 'receiptManager.addreceipt-screen',
         passProps: {
           cameraPicUri: cameraResp.uri,
-          camData:cameraResp.data
-         
+          camData:cameraResp.data,
+         categories:categories
         },
         options: {
           

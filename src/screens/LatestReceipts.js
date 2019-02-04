@@ -6,6 +6,8 @@ import { withAuthenticator } from 'aws-amplify-react-native';
 import Amplify, { API, Auth,Storage } from 'aws-amplify';
 import { connect } from "react-redux";
 import {fetchLatestReceipts,markInboxSelection,fetchUnknownReceipts,resetReceiptDetail,moveToMyReceipts,deleteReceipts} from '../store/actions/receipts';
+import {fetchCategories} from '../store/actions/categorizeAction';
+
 import Icon from 'react-native-vector-icons/dist/Ionicons';
 const STATUS_BAR_HEIGHT = Platform.select({ ios: 0, android: 0 });
 import ReceiptItem from '../components/ReceiptItem';
@@ -192,8 +194,8 @@ const buttons = ['Receipts', 'Others']
 /* GET PICKER OF CATEGORIES */
 _getPicker=()=>{
  
-  const categories=CATEGORIES.map((category,index)=>{
-    return (<Picker.Item key={index} label={category} value={category} />)
+  const categories=this.props.categories.map((category,index)=>{
+    return (<Picker.Item key={index} label={category.category} value={category.category} />)
    });
   
 return this.state.showPicker?
@@ -344,6 +346,9 @@ componentDidMount(){
     //FETCH MY RECEIPTS FROM DATABASE AND GET IT FROM REDUX
     this.props.resetUIState();
     this.fetchReceipts(this.state.isReceiptFolder);
+if(this.props.categories.length===0){
+    this.props.fetchCategories();
+}
 }
 
 toggleMultiSelect=()=>{
@@ -636,6 +641,7 @@ updateIndex= (selectedIndex) =>{
   return (
   <ReceiptItem
   receiptItem={info.item}
+  categories={this.props.categories}
   isChecked={this.state.isChecked[info.index]}
   swipeoutBtns={swipeoutBtns}
   canShowCheckbox={true}
@@ -685,6 +691,7 @@ updateIndex= (selectedIndex) =>{
 const mapStateToProps = state => {
  
     return {
+      categories:state.categories.categories,
       receipts: state.receipts.isReceiptFolder?state.receipts.latestReceipts:state.receipts.unknownReceipts,
       isReceiptDeleted:state.ui.isReceiptDeleted,
       isLoading:state.ui.isLoading
@@ -700,7 +707,8 @@ const mapStateToProps = state => {
       onMyLatestReceipts: () => dispatch(fetchLatestReceipts()),
       markInboxSelection:(isReceiptFolder)=>dispatch(markInboxSelection(isReceiptFolder)),
       onMyOtherReceipts: () => dispatch(fetchUnknownReceipts()),
-      openModal:()=>  dispatch(modalOpen())
+      openModal:()=>  dispatch(modalOpen()),
+      fetchCategories:()=>dispatch(fetchCategories())
     };
   };
 

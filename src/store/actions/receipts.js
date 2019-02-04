@@ -20,7 +20,7 @@ import { API, Auth,Storage } from 'aws-amplify';
 import { Share,Alert,Platform } from 'react-native';
 import base64 from 'base64-js'
 import constants from '../../Utils/constants';
-
+import {storeUserFilteredCategories} from './categorizeAction';
 
 
 //import {DIRS} from 'rn-fetch-blob';
@@ -314,14 +314,28 @@ export const fetchLatestReceipts = () => {
 };
 
 /* Fetch my current receipts */
-export const fetchMyReceipts = () => {
+export const fetchMyReceipts = (filterCategories) => {
     return  async dispatch=> {
         dispatch(uiStartLoading());
         const apiName = 'receiptsAPI';
         const path = '/receipts';
-       
+       let queryParam=null;
        try{
-       const response=  await API.get(apiName, path);
+           if(filterCategories!==undefined){
+        dispatch(storeUserFilteredCategories(filterCategories));
+           
+           if(filterCategories.length>0){
+            //queryParam=
+            
+            queryParam = filterCategories.map(cat=>{
+                return cat.category
+            }).join('~');
+
+           }
+        }
+         const urlPath=path+(queryParam!==null?"?filterCategories="+encodeURI(queryParam):"");
+console.log(urlPath);
+       const response=  await API.get(apiName,urlPath );
        storeUser(dispatch);
        dispatch(storeMyReceipts(response));
        dispatch(uiStopLoading());
@@ -645,6 +659,8 @@ export const categorizeReceipts=(receipts,category)=>{
         
     }
 }
+
+
 export const  updateCategorizedRepors =(receipts)=>{
     return {
         type:UPDATE_CATEGORIZED_RECEIPTS,

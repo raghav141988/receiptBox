@@ -314,8 +314,8 @@ class AddReceipt extends React.Component {
 
   _getPicker=()=>{
     if(Platform.OS==='ios'){
-      const categories=CATEGORIES.map((category,index)=>{
-        return (<Picker.Item key={index} label={category} value={category} />)
+      const categories=this.props.categories.map((category,index)=>{
+        return (<Picker.Item key={index} label={category.category} value={category.category} />)
        });
       
     return this.state.showPicker?
@@ -342,7 +342,10 @@ class AddReceipt extends React.Component {
     </View>):null;
      }
       else if(Platform.OS==='android'){
-       let categories=[...CATEGORIES,'Cancel'];
+        const catLabels=this.props.categories.map(category=>{
+          return category.category
+        })
+       let categories=[...catLabels,'Cancel'];
     
        return ( <AndroidPicker
         items={categories}

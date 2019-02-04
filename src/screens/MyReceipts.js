@@ -7,6 +7,8 @@ import Amplify, { API, Auth,Storage } from 'aws-amplify';
 import { connect } from "react-redux";
 import amplify from '../../src/aws-exports';
 import {fetchMyReceipts,deleteReceipts,resetReceiptDetail,categorizeReceipts} from '../store/actions/receipts';
+import {fetchCategories,addNewCategory} from '../store/actions/categorizeAction';
+
 import Icon from 'react-native-vector-icons/dist/Ionicons';
 import MaterialIcon from 'react-native-vector-icons/dist/MaterialIcons'
 const STATUS_BAR_HEIGHT = Platform.select({ ios: 0, android: 0 });
@@ -19,8 +21,7 @@ import ImagePicker from 'react-native-image-picker';
 import {colors} from '../Utils/theme';
 import {CATEGORIES} from '../Utils/avatarPrefix';
 import AndroidPicker from '../components/AndroidPicker';
-import Another from '../components/another';
-
+import CategoryListing from '../components/CategoryListing';
 const AnimatedListView = Animated.createAnimatedComponent(FlatList);
 const { width, height } = Dimensions.get('window');
 
@@ -367,6 +368,7 @@ async componentDidAppear(){
     this.setState({didScreenAppear:true});
     if(this.props.receipts===undefined ||this.props.receipts===null ||this.props.receipts.length===0){
       this.props.onMyReceipts();
+     // this.props.fetchCategories();
     }
    
   }else {
@@ -387,6 +389,7 @@ componentDidMount(){
    
     this.props.resetUIState();
     this.props.onMyReceipts();
+    this.props.fetchCategories();
 }
 navigationButtonPressed({ buttonId }) {
       
@@ -497,7 +500,7 @@ addReceiptFromCamera=()=>{
     } else {
       const source = { uri: response.uri };
       this.props.openModal();
-      showAddReceiptFromCamera(response );
+      showAddReceiptFromCamera(response,this.props.categories );
       // You can also display the image using data:
       // const source = { uri: 'data:image/jpeg;base64,' + response.data };
   
@@ -521,8 +524,8 @@ handleCategorySelAndroid=(category)=>{
 /* GET PICKER OF CATEGORIES */
 _getPicker=()=>{
  if(Platform.OS==='ios'){
-  const categories=CATEGORIES.map((category,index)=>{
-    return (<Picker.Item key={index} label={category} value={category} />)
+  const categories=this.props.categories.map((category,index)=>{
+    return (<Picker.Item key={index} label={category.category} value={category.category} />)
    });
   
 return this.state.showPicker?
@@ -543,7 +546,10 @@ categories
 </View>):null;
  }
   else if(Platform.OS==='android'){
-   let categories=[...CATEGORIES,'Cancel'];
+    const catLabels=this.props.categories.map(category=>{
+      return category.category
+    })
+   let categories=[...catLabels,'Cancel'];
 
    return ( <AndroidPicker
     items={categories}
@@ -652,6 +658,21 @@ onToggleCheckBox=(index)=>{
   });
 
   this.props.resetNotificationData();
+ }
+
+ onSelectCategory=(category)=>{
+   //STORE SELECTED CATEGORY AND FETCH RECORDS MATCHING
+  const receiptCategories=this.props.userFilteredCategories.concat(category);
+  this.props.onMyReceipts(receiptCategories);
+ }
+ onRemoveCategory=(category)=>{
+   //STORE SELECTED CATEGORY AND FETCH RECORDS MATCHING
+   console.log(category);
+  const receiptCategories=this.props.userFilteredCategories.filter(eachCategory=>{
+    return eachCategory.category!==category.category
+  });
+
+  this.props.onMyReceipts(receiptCategories);
  }
 _getHeaderComponent=()=>
 {
@@ -764,11 +785,18 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
     return (
       
       <View style={styles.fill}>
-  
+
      {Platform.OS==='ios'?<StatusBar barStyle="light-content" />:null}
 
        {/* <Button title="sign out" onPress={this.signOut}/> */}
       <Animated.View style={styles.receiptList} >
+      <CategoryListing
+      categories={this.props.categories}
+      onAddNewCategory={(category)=>this.props.onAddNewCategory(category)}
+      userFilteredCategories={this.props.userFilteredCategories}
+      onSelectCategory={this.onSelectCategory}
+      onRemoveCategory={this.onRemoveCategory}
+      />
         <AnimatedListView
          data={this.props.receipts}
          extraData={this.state.isChecked}
@@ -809,6 +837,7 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
           return (
           <ReceiptItem
           receiptItem={info.item}
+          categories={this.props.categories}
           swipeoutBtns={swipeoutBtns}
           canShowCheckbox={this.state.canShowCheckbox}
           isChecked={this.state.isChecked[info.index]}
@@ -849,7 +878,7 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
           </ActionButton.Item>
           <ActionButton.Item buttonColor={colors.primary} title="Upload from Gallery" onPress={() => {
             this.props.openModal();
-            showAddReceipt();
+            showAddReceipt(undefined,false,this.props.categories);
           
           }}>
             <MaterialIcon name="file-upload" style={styles.actionButtonIcon} />
@@ -871,6 +900,8 @@ _keyExtractor = (item, index) => index.toString();//item.receiptId;
 const mapStateToProps = state => {
     return {
       receipts: state.receipts.myReceipts,
+      categories:state.categories.categories,
+      userFilteredCategories:state.categories.userFilteredCategories,
       isReceiptDeleted:state.ui.isReceiptDeleted,
       notification:state.ui.notification,
       isLoading:state.ui.isLoading
@@ -882,10 +913,12 @@ const mapStateToProps = state => {
       resetUIState:()=>dispatch(resetUIState()),
       categorizeReceipts:(receipts,category)=>dispatch(categorizeReceipts(receipts,category)),
       resetReceiptDetail:()=>dispatch(resetReceiptDetail()),
-      onMyReceipts: () => dispatch(fetchMyReceipts()),
+      onMyReceipts: (receiptCategories) => dispatch(fetchMyReceipts(receiptCategories)),
       deleteReceipts:(receipts)=>dispatch(deleteReceipts(receipts,false)),
       openModal:()=>  dispatch(modalOpen()),
-      resetNotificationData:()=>dispatch(resetNotificationData())
+      resetNotificationData:()=>dispatch(resetNotificationData()),
+      fetchCategories:()=>dispatch(fetchCategories()),
+      onAddNewCategory:(category)=>dispatch(addNewCategory(category))
     };
   };
 

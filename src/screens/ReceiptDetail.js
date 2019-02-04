@@ -54,7 +54,7 @@ import { colors } from '../Utils/theme';
         uri:this.props.receiptDetail.uri
      }
     
-     showAddReceipt(receipt,true);
+     showAddReceipt(receipt,true,this.props.categories);
     }
     /* Method to share the receipt */
     shareReceipt=()=>{
@@ -102,7 +102,8 @@ import { colors } from '../Utils/theme';
             topBar: {
              
               title: {
-                text: receipt.title
+                text: receipt.title,
+                color: colors.primaryTextColor,
               }
             },
           
@@ -137,6 +138,7 @@ visible={(this.state.showShare&& this.props.sharedReceipt!==null)}
 }
 const mapStateToProps = state => {
     return {
+       categories:state.categories.categories,
         receiptDetail: state.receipts.receiptDetail,
         isReceiptDeleted:state.ui.isReceiptDeleted,
         isLoading:state.ui.isLoading,

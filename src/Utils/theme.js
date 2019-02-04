@@ -14,6 +14,8 @@
  * and limitations under the License.
  */
 
+const categoryColors=[
+"#7e57c2","#5c6bc0","#66bb6a","#ef5350","#303f9f","#ff6f00","#9e9d24","#6d4c41","#616161"];
 const colors = {
   primary: '#DB1040',
   buttonEnabledColor:'#fff',
@@ -28,10 +30,12 @@ const colors = {
   grayIcon: '#828f9b',
   mask: 'rgba(52, 52, 52, 0.8)',
   red: '#c0001d',
-  
+  defaultAvatarColor:'#ef6c00',
   textFontSize:17
 };
 
 export {
   colors,
+  categoryColors,
+  
 };

@@ -189,6 +189,13 @@
 				"Parameters": {}
 			}
 		},
+		"functionreceiptCategoryFunction": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/function/receiptCategoryFunction-cloudformation-template.json",
+				"Parameters": {}
+			}
+		},
 		"authcognitofec3a667": {
 			"Type": "AWS::CloudFormation::Stack",
 			"Properties": {
@@ -332,6 +339,26 @@
 					"functionnotificationFunctionArn": {
 						"Fn::GetAtt": [
 							"functionnotificationFunction",
+							"Outputs.Arn"
+						]
+					}
+				}
+			}
+		},
+		"apireceiptCategories": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "https://s3.amazonaws.com/eceiptanager-20181201161718-deployment/amplify-cfn-templates/api/receiptCategories-cloudformation-template.json",
+				"Parameters": {
+					"functionreceiptCategoryFunctionName": {
+						"Fn::GetAtt": [
+							"functionreceiptCategoryFunction",
+							"Outputs.Name"
+						]
+					},
+					"functionreceiptCategoryFunctionArn": {
+						"Fn::GetAtt": [
+							"functionreceiptCategoryFunction",
 							"Outputs.Arn"
 						]
 					}

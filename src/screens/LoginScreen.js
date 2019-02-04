@@ -195,6 +195,7 @@ export const startApp=()=>{
                                 title: {
                                   text: 'Inbox',
                                   color: colors.primaryTextColor,
+                                 
                                 },
                              
                              

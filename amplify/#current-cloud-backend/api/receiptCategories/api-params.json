@@ -1,0 +1,35 @@
+{
+    "paths": [
+        {
+            "name": "/categories",
+            "lambdaFunction": "receiptCategoryFunction",
+            "privacy": {
+                "private": true,
+                "auth": "rw"
+            }
+        }
+    ],
+    "resourceName": "receiptCategories",
+    "apiName": "receiptmanagerbd50f09a",
+    "functionArns": [
+        {
+            "lambdaFunction": "receiptCategoryFunction"
+        }
+    ],
+    "privacy": {
+        "auth": 1,
+        "unauth": 0,
+        "authRoleName": "eceiptanager-20181201161718-authRole",
+        "unAuthRoleName": "eceiptanager-20181201161718-unauthRole"
+    },
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "receiptCategoryFunction",
+            "attributes": [
+                "Name",
+                "Arn"
+            ]
+        }
+    ]
+}

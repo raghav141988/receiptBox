@@ -23,7 +23,7 @@ class UserProfileComponent extends Component
   size="xlarge"
   title={avatarDetails.text}
   placeholderStyle={{backgroundColor:avatarDetails.color}}
-  
+  overlayContainerStyle={{backgroundColor:avatarDetails.color}}
   rounded
  // onPress={() => console.log("Works!")}
   activeOpacity={0.9}

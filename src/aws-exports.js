@@ -53,6 +53,12 @@ const awsmobile =  {
             "name": "notificationAPI",
             "endpoint": "https://qalazkdr95.execute-api.us-east-1.amazonaws.com/Prod",
             "region": "us-east-1"
+        },
+        {
+            "name": "receiptCategories",
+            "endpoint": "https://zox5tai3hf.execute-api.us-east-1.amazonaws.com/Prod",
+            "region": "us-east-1"
+           
         }
     ],
     "aws_mobile_analytics_app_id": "310e913ae3d34137933d12d8e5908116",

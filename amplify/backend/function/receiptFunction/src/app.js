@@ -13,7 +13,7 @@ const uuid = require('node-uuid');
 AWS.config.update({ region: process.env.TABLE_REGION });
 const async = require('async');
 const dynamodb = new AWS.DynamoDB.DocumentClient();
-
+var url = require('url');
 let tableName = "Receipts";
 
 const userIdPresent = true; // TODO: update in case is required to use that definition
@@ -54,27 +54,67 @@ const convertUrlType = (param, type) => {
 
 app.get(path, function(req, res) {
   var condition = {}
+  
   condition[partitionKeyName] = {
     ComparisonOperator: 'EQ'
   }
   
-  console.log(req.apiGateway);
+
  // const userSub = req.apiGateway.event.requestContext.identity.cognitoAuthenticationProvider.split(':CognitoSignIn:')[1]
    const userId=req.apiGateway.event.requestContext.identity.cognitoIdentityId || UNAUTH;
 
+   let queryParams ={};
+   console.log('fetching filter categories');
+   console.log(req.query);
 
+   console.log(req.query.filterCategories);
 
+   
+if(req.query.filterCategories){
+const categories =decodeURI(req.query.filterCategories);
+console.log(categories);
+let catArray=categories.split("~");
+console.log(catArray);
+var titleObject = {};
+var index = 0;
+catArray.forEach(function(value) {
+    index++;
+    var titleKey = ":categoryValue"+index;
+    titleObject[titleKey.toString()] = value;
+});
 
-
-  let queryParams = {
+  queryParams = {
     TableName: tableName,
+  // IndexName: 'createdDate-index',
     KeyConditions: {
       userSub: {
         ComparisonOperator: 'EQ',                                                                                                                        
         AttributeValueList: [userId || UNAUTH],
       },
     },
+    FilterExpression : "category IN ("+Object.keys(titleObject).toString()+ ")",
+    ExpressionAttributeValues : titleObject,
+    ScanIndexForward:false,
+
   } 
+}else {
+  queryParams = {
+    TableName: tableName,
+    //IndexName: 'createdDate-index',
+   // ScanIndexForward:false,
+    KeyConditions: {
+      userSub: {
+        ComparisonOperator: 'EQ',                                                                                                                        
+        AttributeValueList: [userId || UNAUTH],
+      },
+    },
+    ScanIndexForward:false,
+
+  } 
+}
+
+
+  
 
   dynamodb.query(queryParams, (err, data) => {
     if (err) {

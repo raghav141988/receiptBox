@@ -8,12 +8,12 @@ import { CheckBox } from 'react-native-elements'
 import {colors} from '../Utils/theme';
 import ItalicHeadingText from './ItalicHeading';
 import Icon from 'react-native-vector-icons/dist/Ionicons';
-import {getAvatarPrefix} from '../Utils/avatarPrefix';
+import {getAvatarByCategory} from '../Utils/avatarPrefix';
 import Swipeout from 'react-native-swipeout';
 import Moment from 'react-moment';
 const receiptItem = props =>{ 
 
- const avatarDetails =getAvatarPrefix(props.receiptItem.category);
+ const avatarDetails =getAvatarByCategory(props.receiptItem.category,props.categories);
 
     return (
 
@@ -26,13 +26,13 @@ const receiptItem = props =>{
           
           leftAvatar={(<Avatar
   size="medium"
-  containerStyle={0.1}
+  overlayContainerStyle={{backgroundColor:avatarDetails.color}}
   title={avatarDetails.text}
   placeholderStyle={{backgroundColor:avatarDetails.color}}
   avatarStyle={{opacity:0.7}}
   rounded
  // onPress={() => console.log("Works!")}
-  ={0.3}
+ 
 />)
         }
 
@@ -56,7 +56,7 @@ const receiptItem = props =>{
             
              onPress={props.onItemPressed}
              title={
-                 (<MainText>
+                 (<MainText style={{margin:10}}>
                 <HeadingText>{props.receiptItem.title}</HeadingText>
              </MainText>)
                 }

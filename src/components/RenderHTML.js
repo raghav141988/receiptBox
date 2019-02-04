@@ -6,8 +6,7 @@ import { colors } from '../Utils/theme';
 import mime from 'mime-types';
 const renderHTML=(props)=>{
   
-   console.log(width);
-   console.log(height);
+  
    const extension = mime.extension(props.contentType);
    
    switch(extension){
