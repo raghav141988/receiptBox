@@ -14,7 +14,7 @@ AWS.config.update({ region: process.env.TABLE_REGION });
 const async = require('async');
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 var url = require('url');
-let tableName = "Receipts";
+let tableName = "UserReceipts";
 
 const userIdPresent = true; // TODO: update in case is required to use that definition
 const partitionKeyName = "userSub";
@@ -257,15 +257,19 @@ for (var i = 0; i < receipts.length; i++) {
       TableName: tableName,
      Key:{
       'userSub':req.body['userSub'],
-      'receiptKey':receipt.receiptKey,
+      'createdDate':receipt.createdDate,
      },
+    
      UpdateExpression:"set category = :cat,title_category = :titleCat",
-  
+     ConditionExpression:"receiptKey = :val",
     ExpressionAttributeValues:{
       ":cat":req.body['category'],
-      ":titleCat":titleCategory
+      ":titleCat":titleCategory,
+      ":val": receipt.receiptKey
      
   },
+ 
+  
   ReturnValues:"UPDATED_NEW"
   }
   console.log('updatable record**');
@@ -313,7 +317,8 @@ app.delete(path + '/object' + hashKeyPath + sortKeyPath, function(req, res) {
 
     req.body['userSub'] = userId|| UNAUTH;
   if (userIdPresent && req.apiGateway) {
-    params[partitionKeyName] = userSub || UNAUTH;
+    params[partitionKeyName] = userId || UNAUTH;
+    params['createdDate']=req.body['createdDate'];
   } else {
     params[partitionKeyName] = req.params[partitionKeyName];
      try {
@@ -322,17 +327,21 @@ app.delete(path + '/object' + hashKeyPath + sortKeyPath, function(req, res) {
       res.json({error: 'Wrong column type ' + err});
     }
   }
-  if (hasSortKey) {
+  /*if (hasSortKey) {
     try {
       params[sortKeyName] = convertUrlType(req.params[sortKeyName], sortKeyType);
     } catch(err) {
       res.json({error: 'Wrong column type ' + err});
     }
-  }
+  }*/
 
   let removeItemParams = {
     TableName: tableName,
-    Key: params
+    Key: params,
+    ConditionExpression:sortKeyName+"= :val",
+    ExpressionAttributeValues: {
+        ":val": convertUrlType(req.params[sortKeyName], sortKeyType)
+    }
   }
   console.log('Delete Receipt***');
   console.log(removeItemParams);

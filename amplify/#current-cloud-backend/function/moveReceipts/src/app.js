@@ -26,7 +26,7 @@ const bucketName = 'receiptmanagerstorage';
 //const oldPrefix = 'abc/';
 //const newPrefix = 'xyz/';
 const dynamodb = new AWS.DynamoDB.DocumentClient();
-let tableName = "Receipts";
+let tableName = "UserReceipts";
 const s3 = new AWS.S3({
     apiVersion: '2006-03-01',
 
@@ -114,7 +114,7 @@ app.post('/moveReceipts', async function (req, res) {
                 const dbResponse = await dynamodb.put(putItemParams).promise();
                 
                 paramsS3Delete.Delete.Objects.push({
-                    Key: receiptSourceBasePath+'/' + (receipt.receiptKey)
+                    Key: receiptSourceBasePath+'/' + receipt.receiptKey
                 });
 
                 succeededReceipts.push(
@@ -143,12 +143,12 @@ app.post('/moveReceipts', async function (req, res) {
 
     }
     try {
+        console.log('delete params');
+        console.log(paramsS3Delete);
+        console.log(paramsS3Delete.Delete.Objects);
     const deleteResponse = await s3.deleteObjects(paramsS3Delete).promise();
-    }
-    catch(err){
-        console.log('Delete failure');
-        console.log(err);
-    }
+    console.log('delete response**');
+    console.log(deleteResponse);
     let operationStatus="";
     if(succeededReceipts.length==0&& failedReceipts.length>=1){
         //TOTAL FAILURE
@@ -168,6 +168,12 @@ app.post('/moveReceipts', async function (req, res) {
         failedReceipts:failedReceipts
     }
     res.json(finalResponse);
+    }
+    catch(err){
+        console.log('Delete failure');
+        console.log(err);
+    }
+   
 
 });
 

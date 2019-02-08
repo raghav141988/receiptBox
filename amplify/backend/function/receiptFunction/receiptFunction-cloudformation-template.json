@@ -27,7 +27,7 @@
 				"Timeout": "25",
 				"Code": {
 					"S3Bucket": "eceiptanager-20181201161718-deployment",
-					"S3Key": "amplify-builds/receiptFunction-1549173346-latest-build.zip"
+					"S3Key": "amplify-builds/receiptFunction-1549256278-latest-build.zip"
 				}
 			}
 		},
@@ -103,9 +103,8 @@
 								"dynamodb:DeleteItem"
 							],
 							"Resource": [
-								{
-									"Ref": "storagedynamo59694b27Arn"
-								}
+								"arn:aws:dynamodb:us-east-1:175709978647:table/UserReceipts",
+								"arn:aws:dynamodb:us-east-1:175709978647:table/Receipts"
 							]
 						}
 					]

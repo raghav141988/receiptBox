@@ -296,7 +296,7 @@ export const fetchLatestReceipts = () => {
        try{
         const user = await Auth.currentAuthenticatedUser();
         
-      console.log(user);
+     
         const result=  await Storage.list(user.attributes.sub+"/", {level: 'protected'});
         console.log('result');
         console.log(result);
